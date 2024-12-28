@@ -321,7 +321,7 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 4),
                         child: Container(
-                          height: 50,
+                          height: 60,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
