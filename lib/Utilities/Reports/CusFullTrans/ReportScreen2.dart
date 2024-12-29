@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skfinance/finance_provider.dart';
 
 class ReportScreen2 extends StatefulWidget {
+  const ReportScreen2({super.key});
+
   @override
   _ReportScreen2State createState() => _ReportScreen2State();
 }
@@ -27,6 +29,10 @@ class _ReportScreen2State extends State<ReportScreen2> {
       DateTime endDate =
           DateFormat('dd-MM-yyyy').parse(_endDateController.text);
 
+      // Ensure endDate includes the entire day
+      endDate =
+          endDate.add(const Duration(hours: 23, minutes: 59, seconds: 59));
+
       List<Map<String, dynamic>> entries =
           await CollectionDB.getEntriesBetweenDates(startDate, endDate);
 
@@ -36,31 +42,35 @@ class _ReportScreen2State extends State<ReportScreen2> {
       Map<String, List<PdfEntry>> groupedEntries = {}; // Group entries by date
 
       for (var entry in entries) {
-        if (entry['CrAmt'] != null) {
-          totalYouGave += entry['CrAmt'];
-        }
-        if (entry['DrAmt'] != null) {
-          totalYouGot += entry['DrAmt'];
-        }
+        DateTime entryDate = DateFormat('dd-MM-yyyy').parse(entry['Date']);
 
-        // Fetch party name
-        String partyName =
-            await DatabaseHelper.getPartyNameByLenId(entry['LenId']) ??
-                'Unknown';
+        if (entryDate.isAfter(startDate) && entryDate.isBefore(endDate)) {
+          if (entry['CrAmt'] != null) {
+            totalYouGave += entry['CrAmt'];
+          }
+          if (entry['DrAmt'] != null) {
+            totalYouGot += entry['DrAmt'];
+          }
 
-        // Create PdfEntry
-        PdfEntry pdfEntry = PdfEntry(
-          partyName: partyName,
-          date: entry['Date'],
-          drAmt: entry['DrAmt'] ?? 0.0,
-          crAmt: entry['CrAmt'] ?? 0.0,
-        );
+          // Fetch party name
+          String partyName =
+              await DatabaseHelper.getPartyNameByLenId(entry['LenId']) ??
+                  'Unknown';
 
-        // Group by date
-        if (groupedEntries.containsKey(entry['Date'])) {
-          groupedEntries[entry['Date']]!.add(pdfEntry);
-        } else {
-          groupedEntries[entry['Date']] = [pdfEntry];
+          // Create PdfEntry
+          PdfEntry pdfEntry = PdfEntry(
+            partyName: partyName,
+            date: entry['Date'],
+            drAmt: entry['DrAmt'] ?? 0.0,
+            crAmt: entry['CrAmt'] ?? 0.0,
+          );
+
+          // Group by date
+          if (groupedEntries.containsKey(entry['Date'])) {
+            groupedEntries[entry['Date']]!.add(pdfEntry);
+          } else {
+            groupedEntries[entry['Date']] = [pdfEntry];
+          }
         }
       }
 
@@ -202,7 +212,9 @@ class _ReportScreen2State extends State<ReportScreen2> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  '${DateFormat('dd-MM').format(DateFormat('dd-MM-yyyy').parse(entry.date))}',
+                                  DateFormat('dd-MM').format(
+                                      DateFormat('dd-MM-yyyy')
+                                          .parse(entry.date)),
                                   style: const TextStyle(
                                     fontSize: 14,
                                   ),

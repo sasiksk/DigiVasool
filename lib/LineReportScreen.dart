@@ -3,13 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:skfinance/Data/Databasehelper.dart';
 import 'package:skfinance/Utilities/CustomDatePicker.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 
-import 'package:path_provider/path_provider.dart' as path_provider;
-import 'dart:io';
-import 'package:open_file/open_file.dart';
-import 'package:skfinance/Utilities/Reports/CusFullTrans/pdf_generator.dart';
 import 'package:skfinance/finance_provider.dart';
 
 class Linereportscreen extends ConsumerStatefulWidget {
@@ -75,9 +69,9 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('View Report'),
+        title: const Text('View Report'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -97,7 +91,7 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                     hintText: 'Pick a start date',
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: CustomDatePicker(
                     controller: _endDateController,
@@ -107,23 +101,23 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchEntries,
-              child: Text('Fetch Entries'),
+              child: const Text('Fetch Entries'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Net Balance Section
-            Text(
+            const Text(
               'Net Balance',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 71, 2, 92),
+                color: const Color.fromARGB(255, 71, 2, 92),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -132,29 +126,31 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('TOTAL', style: TextStyle(color: Colors.grey)),
+                      const Text('TOTAL', style: TextStyle(color: Colors.grey)),
                       Text('${_entries.length} Entries',
-                          style: TextStyle(color: Colors.grey)),
+                          style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                   Column(
                     children: [
-                      Text('YOU GAVE', style: TextStyle(color: Colors.red)),
-                      Text('₹ $_totalYouGave',
+                      const Text('YOU GAVE',
                           style: TextStyle(color: Colors.red)),
+                      Text('₹ $_totalYouGave',
+                          style: const TextStyle(color: Colors.red)),
                     ],
                   ),
                   Column(
                     children: [
-                      Text('YOU GOT', style: TextStyle(color: Colors.green)),
-                      Text('₹ $_totalYouGot',
+                      const Text('YOU GOT',
                           style: TextStyle(color: Colors.green)),
+                      Text('₹ $_totalYouGot',
+                          style: const TextStyle(color: Colors.green)),
                     ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
 
             // Entries List
             Expanded(
@@ -183,7 +179,7 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                     future: DatabaseHelper.getPartyNameByLenId(entry['LenId']),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return const CircularProgressIndicator();
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else {
@@ -196,10 +192,11 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 16),
                                   decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 219, 247, 169),
+                                    color: const Color.fromARGB(
+                                        255, 219, 247, 169),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -207,25 +204,29 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        '${DateFormat('dd-MM').format(DateFormat('dd-MM-yyyy').parse(entry['Date']))}',
-                                        style: TextStyle(
+                                        DateFormat('dd-MM').format(
+                                            DateFormat('dd-MM-yyyy')
+                                                .parse(entry['Date'])),
+                                        style: const TextStyle(
                                           fontSize: 14,
                                         ),
                                       ),
                                       Text(
                                         '₹${totalCrAmt != 0.0 ? totalCrAmt : 0.0}',
-                                        style: TextStyle(color: Colors.red),
+                                        style:
+                                            const TextStyle(color: Colors.red),
                                       ),
                                       Text(
                                         '₹${totalDrAmt != 0.0 ? totalDrAmt : 0.0}',
-                                        style: TextStyle(color: Colors.green),
+                                        style: const TextStyle(
+                                            color: Colors.green),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 16, horizontal: 16),
                               decoration: BoxDecoration(
                                 color: Colors.grey[200],
@@ -243,7 +244,8 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                                         partyName.length >= 4
                                             ? partyName.substring(0, 4)
                                             : partyName,
-                                        style: TextStyle(color: Colors.grey),
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                       ),
                                     ],
                                   ),
@@ -253,7 +255,8 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                                         entry['CrAmt'] != 0.0
                                             ? '₹${entry['CrAmt']}'
                                             : '',
-                                        style: TextStyle(color: Colors.red),
+                                        style:
+                                            const TextStyle(color: Colors.red),
                                       ),
                                     ],
                                   ),
@@ -263,7 +266,8 @@ class _LinereportscreenState extends ConsumerState<Linereportscreen> {
                                         entry['DrAmt'] != 0.0
                                             ? '₹${entry['DrAmt']}'
                                             : '',
-                                        style: TextStyle(color: Colors.green),
+                                        style: const TextStyle(
+                                            color: Colors.green),
                                       ),
                                     ],
                                   ),

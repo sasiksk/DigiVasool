@@ -35,24 +35,39 @@ class _RestorePageState extends State<RestorePage> {
             // Proceed with restoring the database
             // Define the target database path
             String dbPath = await DatabaseHelper.getDatabasePath();
+            dbPath = '${dbPath}finance3.db';
 
 // Delete the existing file if it exists
-
             File dbFile = File(dbPath);
+            if (await dbFile.exists()) {
+              await dbFile.delete();
+            }
 
 // Copy the selected file to the app's database directory, overwriting the existing file
             await selectedFile.copy(dbPath);
 
-            print(selectedFile.path);
-            print(dbPath);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Database restored successfully!')),
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Success'),
+                  content: const Text(
+                      'Database restored successfully! Please restart the application.'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Restart'),
+                      onPressed: () {
+                        exit(0); // Exit the application
+                      },
+                    ),
+                  ],
+                );
+              },
             );
           } else {
             // Notify the user about the invalid file type
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+              const SnackBar(
                   content:
                       Text('Invalid file type. Please select a .db file.')),
             );
@@ -60,13 +75,13 @@ class _RestorePageState extends State<RestorePage> {
         } else {
           // User canceled the picker
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No file selected.')),
+            const SnackBar(content: Text('No file selected.')),
           );
         }
       } else {
         // Permissions not granted
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Storage permissions not granted.')),
+          const SnackBar(content: Text('Storage permissions not granted.')),
         );
       }
     } catch (e) {
@@ -85,14 +100,29 @@ class _RestorePageState extends State<RestorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Restore Database'),
+        title: const Text('Restore Database'),
       ),
       body: Center(
         child: _isLoading
-            ? CircularProgressIndicator()
-            : ElevatedButton(
-                onPressed: restoreDatabase,
-                child: Text('Restore Database'),
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                        'Hello User! Please choose the correct file and Restore .Kindly restart the application after restore. Thank you!\n\nFor any queries, contact sasiksr4@gmail.com',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        )),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: restoreDatabase,
+                    child: const Text('Restore Database'),
+                  ),
+                ],
               ),
       ),
     );

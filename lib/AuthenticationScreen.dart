@@ -42,14 +42,14 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
           children: [
             TextField(
               controller: _userIdController,
-              decoration: InputDecoration(labelText: 'User ID'),
+              decoration: const InputDecoration(labelText: 'User ID'),
             ),
-            SizedBox(
+            const SizedBox(
               height: 16,
             ),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             const SizedBox(height: 20),

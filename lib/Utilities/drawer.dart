@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:skfinance/BackupRestorePage.dart';
+import 'package:googleapis/authorizedbuyersmarketplace/v1.dart';
 
 import 'package:skfinance/Backuppage.dart';
+import 'package:skfinance/ContactUs.dart';
 import 'package:skfinance/Data/Databasehelper.dart';
 import 'package:skfinance/Restore.dart';
 import 'package:skfinance/Utilities/Reports/CustomerReportScreen.dart';
@@ -43,11 +44,11 @@ Widget buildDrawer(BuildContext context) {
             //navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
           },
         ),
-        ListTile(
+        /*ListTile(
           leading: const Icon(Icons.backup),
           title: const Text('Back Up'),
           onTap: () {
@@ -57,15 +58,26 @@ Widget buildDrawer(BuildContext context) {
               MaterialPageRoute(builder: (context) => BackupRestorePage()),
             );
           },
-        ),
+        ),*/
         ListTile(
           leading: const Icon(Icons.backup),
+          title: const Text('Back Up'),
+          onTap: () {
+            //navigate to home screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DownloadDBScreen()),
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.restore),
           title: const Text('Restore'),
           onTap: () {
             //navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => DownloadDBScreen()),
+              MaterialPageRoute(builder: (context) => RestorePage()),
             );
           },
         ),
@@ -83,7 +95,7 @@ Widget buildDrawer(BuildContext context) {
         ),
 
         ListTile(
-          leading: const Icon(Icons.restore_outlined),
+          leading: const Icon(Icons.restore_from_trash_sharp),
           title: const Text('Reset All '),
           onTap: () {
             showDialog(
@@ -128,6 +140,17 @@ Widget buildDrawer(BuildContext context) {
                   ],
                 );
               },
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.contact_phone),
+          title: const Text(' Contact Us'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ContactPage()),
             );
           },
         ),

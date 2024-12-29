@@ -6,7 +6,7 @@ class LineCard extends StatelessWidget {
   final double screenWidth;
   final VoidCallback? onLineSelected;
 
-  LineCard({
+  const LineCard({
     required this.lineName,
     required this.screenWidth,
     this.onLineSelected,
@@ -27,7 +27,7 @@ class LineCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   Colors.blueAccent,
                   Colors.blue,

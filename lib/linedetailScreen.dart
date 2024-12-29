@@ -112,9 +112,9 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Given:',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white),
@@ -131,9 +131,9 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Profit:',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white),
@@ -150,9 +150,9 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Total Given:',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white),
@@ -169,9 +169,9 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Collected:',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white),
@@ -185,7 +185,7 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                           ),
                         ],
                       ),
-                      Column(
+                      /*Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -203,13 +203,13 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                                 color: Colors.white),
                           ),
                         ],
-                      ),
+                      ),*/
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Amt in Line:',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white),
@@ -299,7 +299,7 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                       : filteredPartyNames.length,
                   itemBuilder: (context, index) {
                     if (filteredPartyNames.length == 0) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           'No Parties found',
                           style: TextStyle(
@@ -323,10 +323,10 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               colors: [
-                                Colors.blueGrey.shade700,
-                                Colors.blueGrey.shade500,
+                                Color.fromARGB(255, 4, 82, 1),
+                                Color.fromARGB(255, 205, 255, 182),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -402,34 +402,11 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                                                 await dbLending
                                                     .deleteLendingAndCollections(
                                                         lenId, lineName);
+
                                                 if (mounted) {
                                                   setState(() {
                                                     loadPartyNames(); // Refresh the list after deletion
                                                   });
-                                                  showDialog(
-                                                    context:
-                                                        parentContext, // Use the parent context
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                            'Success'),
-                                                        content: const Text(
-                                                            'Party and related collections deleted successfully'),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            child: const Text(
-                                                                'OK'),
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(); // Dismiss the dialog
-                                                            },
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
                                                 }
                                               }
                                             },

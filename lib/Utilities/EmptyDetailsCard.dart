@@ -33,7 +33,7 @@ class EmptyCard extends StatelessWidget {
         aspectRatio: 16 / 9,
         autoPlayCurve: Curves.fastOutSlowIn,
         enableInfiniteScroll: false,
-        autoPlayAnimationDuration: Duration(milliseconds: 1000),
+        autoPlayAnimationDuration: const Duration(milliseconds: 10000),
         viewportFraction: 0.33,
       ),
       items: items.asMap().entries.map((entry) {
@@ -46,16 +46,16 @@ class EmptyCard extends StatelessWidget {
                 color:
                     colors[index % colors.length], // Assign color from the list
                 borderRadius: BorderRadius.circular(15), // Rounded corners
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [
-                    Colors.cyanAccent,
-
-                    Colors.blueGrey.shade800, // Ending color
+                    Colors.blueAccent,
+                    Colors.blue,
+                    Colors.lightBlueAccent // Ending color
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26, // Shadow color
                     offset: Offset(0, 4), // Shadow position

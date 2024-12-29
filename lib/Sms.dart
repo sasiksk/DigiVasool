@@ -14,9 +14,10 @@ Future<void> sendSms(String phoneNumber, String message) async {
         scheme: 'sms',
         path: phoneNumber,
         queryParameters: <String, String>{
-          'body': message,
+          'body': message, // Use the message directly
         },
       );
+
       if (await canLaunch(smsUri.toString())) {
         await launch(smsUri.toString());
         print('SMS sent to $phoneNumber');

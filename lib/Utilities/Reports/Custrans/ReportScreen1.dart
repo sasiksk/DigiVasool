@@ -13,7 +13,7 @@ class ReportScreen1 extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Customer Wise Report'),
+        title: const Text('Customer Wise Report'),
       ),
       body: Center(
         child: ElevatedButton(
@@ -30,7 +30,7 @@ class ReportScreen1 extends ConsumerWidget {
             await generateNewPdf(entries, totalAmtGiven, totalProfit,
                 totalAmtReceived, totalExpense, financeName);
           },
-          child: Text('Generate PDF'),
+          child: const Text('Generate PDF'),
         ),
       ),
     );

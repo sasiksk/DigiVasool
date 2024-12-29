@@ -7,7 +7,7 @@ class EmptyCard1 extends StatelessWidget {
   final String? title;
   final Widget content;
 
-  EmptyCard1({
+  const EmptyCard1({
     required this.screenHeight,
     required this.screenWidth,
     this.title,
@@ -29,10 +29,11 @@ class EmptyCard1 extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [
-                Colors.blueAccent,
-                Colors.blueGrey[800] ?? const Color.fromARGB(255, 230, 234, 236)
+                Color.fromARGB(255, 235, 231, 208),
+                Color.fromARGB(255, 227, 228, 241),
+                Color.fromARGB(255, 243, 231, 245)
               ], // Gradient background
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -51,12 +52,13 @@ class EmptyCard1 extends StatelessWidget {
                       fontFamily: GoogleFonts.tinos().fontFamily,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: const Color.fromARGB(255, 23, 56, 1),
                       // White text color
                     ),
                   ),
                 ),
-                SizedBox(height: 10), // Increased spacing for better layout
+                const SizedBox(
+                    height: 10), // Increased spacing for better layout
                 DefaultTextStyle(
                   style: TextStyle(
                       fontFamily: GoogleFonts.tinos().fontFamily,

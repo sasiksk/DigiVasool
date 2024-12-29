@@ -168,7 +168,7 @@ class DatabaseHelper {
   }
 
   static Future<void> dropDatabase() async {
-    final dbPath = await sql.getDatabasesPath();
+    final dbPath = await getDatabasePath();
     final pathToDb = path.join(dbPath, 'finance3.db');
     await sql.deleteDatabase(pathToDb);
   }

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skfinance/PartyDetailScreen.dart';
-import 'package:skfinance/Utilities/PartyScreen.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final List<IconData> icons;

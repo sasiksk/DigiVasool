@@ -29,8 +29,10 @@ class FloatingActionButtonWithText extends StatelessWidget {
               color: Colors.white,
             )
           : null,
-      label: Text(label, style: TextStyle(fontSize: 14, color: Colors.white)),
-      backgroundColor: Colors.blue.shade400, // Set the background color to blue
+      label: Text(label,
+          style: const TextStyle(fontSize: 14, color: Colors.white)),
+      backgroundColor:
+          Colors.blueAccent.shade700, // Set the background color to blue
       heroTag: heroTag, // Set the heroTag if provided
     );
   }

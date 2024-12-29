@@ -203,8 +203,11 @@ class CollectionScreen extends ConsumerWidget {
                                   );
                                 });
                               }
+
+                              final financeName =
+                                  ref.watch(financeNameProvider);
                               await sendSms(pno,
-                                  'Your Paid= $currentAmtCollected, Balance=${currentgivenamt - currentAmtCollected}. Thank You. Selva Vinagaya Finance.');
+                                  'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
                             }
                             // Insert new record
                             else {
@@ -240,8 +243,10 @@ class CollectionScreen extends ConsumerWidget {
                                     lineName, collectedAmt);
 
                                 if (sms == 1) {
+                                  final financeName =
+                                      ref.watch(financeNameProvider);
                                   await sendSms(pno,
-                                      'Your Paid= $collectedAmt, Balance=${currentgivenamt - collectedAmt}. Thank You. Selva Vinagaya Finance.');
+                                      'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
                                 }
                               } else {
                                 Future.delayed(Duration.zero, () {

@@ -31,14 +31,14 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Report Screen'),
+        title: const Text('Report Screen'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             DropdownButton<String>(
-              hint: Text('Select Table'),
+              hint: const Text('Select Table'),
               value: _selectedTable,
               onChanged: (String? newValue) {
                 setState(() {
@@ -53,13 +53,13 @@ class _ReportScreenState extends State<ReportScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text('Start Date: ${_startDate.toLocal()}'.split(' ')[0]),
             Text('End Date: ${_endDate.toLocal()}'.split(' ')[0]),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: _tableData.isEmpty
-                  ? Center(child: Text('No data available'))
+                  ? const Center(child: Text('No data available'))
                   : SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(

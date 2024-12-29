@@ -141,11 +141,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
           ),
           IconButton(
-              icon: const Icon(Icons.upload_file),
+              icon: const Icon(Icons.refresh),
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => BackupRestorePage()),
+                  MaterialPageRoute(builder: (context) => const HomeScreen()),
                 );
               }),
           IconButton(
@@ -160,7 +160,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: Column(
         children: [
           EmptyCard1(
-            screenHeight: MediaQuery.of(context).size.height * 1.35,
+            screenHeight: MediaQuery.of(context).size.height * 1.50,
             screenWidth: MediaQuery.of(context).size.width,
             title: 'Finance Details',
             content: EmptyCard(
@@ -170,9 +170,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Given:',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: Colors.white),
@@ -189,9 +189,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text(
+                      'Profit:',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                    ),
                     Text(
-                      'Received:',
+                      '₹${totalProfit.toStringAsFixed(2)}',
                       style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Total:',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                    ),
+                    Text(
+                      '₹${(totalProfit + totalAmtGiven).toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Received:',
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: Colors.white),
@@ -208,9 +246,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'You will get:',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                           color: Colors.white),
@@ -224,26 +262,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Profit:',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white),
-                    ),
-                    Text(
-                      '₹${totalProfit.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white),
-                    ),
-                  ],
-                ),
-                Column(
+                /*Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -261,7 +280,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           color: Colors.white),
                     ),
                   ],
-                ),
+                ),*/
               ],
             ),
           ),

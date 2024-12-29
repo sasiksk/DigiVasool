@@ -331,7 +331,7 @@ Future<void> generateNewPdf(
   );
 
   final output = await path_provider.getTemporaryDirectory();
-  final file = File("${output.path}/account_statement.pdf");
+  final file = File("${output.path}/AccSta_$formattedDate.pdf");
   await file.writeAsBytes(await pdf.save());
   await OpenFile.open(file.path);
 }

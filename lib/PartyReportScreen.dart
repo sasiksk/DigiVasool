@@ -13,6 +13,8 @@ import 'package:skfinance/Utilities/Reports/CusFullTrans/pdf_generator.dart';*/
 import 'package:skfinance/finance_provider.dart';
 
 class Partyreportscreen extends ConsumerStatefulWidget {
+  const Partyreportscreen({super.key});
+
   @override
   _PartyreportscreenState createState() => _PartyreportscreenState();
 }
@@ -70,9 +72,9 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('View Report'),
+        title: const Text('View Report'),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -92,7 +94,7 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
                     hintText: 'Pick a start date',
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: CustomDatePicker(
                     controller: _endDateController,
@@ -102,21 +104,21 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchEntries,
-              child: Text('Fetch Entries'),
+              child: const Text('Fetch Entries'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Net Balance Section
-            Text(
+            const Text(
               'Net Balance',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.blue[100],
                 borderRadius: BorderRadius.circular(8),
@@ -127,29 +129,31 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('TOTAL', style: TextStyle(color: Colors.grey)),
+                      const Text('TOTAL', style: TextStyle(color: Colors.grey)),
                       Text('${_entries.length} Entries',
-                          style: TextStyle(color: Colors.grey)),
+                          style: const TextStyle(color: Colors.grey)),
                     ],
                   ),
                   Column(
                     children: [
-                      Text('YOU GAVE', style: TextStyle(color: Colors.red)),
-                      Text('₹ $_totalYouGave',
+                      const Text('YOU GAVE',
                           style: TextStyle(color: Colors.red)),
+                      Text('₹ $_totalYouGave',
+                          style: const TextStyle(color: Colors.red)),
                     ],
                   ),
                   Column(
                     children: [
-                      Text('YOU GOT', style: TextStyle(color: Colors.green)),
-                      Text('₹ $_totalYouGot',
+                      const Text('YOU GOT',
                           style: TextStyle(color: Colors.green)),
+                      Text('₹ $_totalYouGot',
+                          style: const TextStyle(color: Colors.green)),
                     ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
 
             // Entries List
             Expanded(
@@ -178,8 +182,8 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 16),
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8),
@@ -188,16 +192,18 @@ class _PartyreportscreenState extends ConsumerState<Partyreportscreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${DateFormat('dd-MM').format(DateFormat('dd-MM-yyyy').parse(entry['Date']))}',
-                              style: TextStyle(color: Colors.grey),
+                              DateFormat('dd-MM').format(
+                                  DateFormat('dd-MM-yyyy')
+                                      .parse(entry['Date'])),
+                              style: const TextStyle(color: Colors.grey),
                             ),
                             Text(
                               entry['CrAmt'] != 0.0 ? '₹${entry['CrAmt']}' : '',
-                              style: TextStyle(color: Colors.red),
+                              style: const TextStyle(color: Colors.red),
                             ),
                             Text(
                               entry['DrAmt'] != 0.0 ? '₹${entry['DrAmt']}' : '',
-                              style: TextStyle(color: Colors.green),
+                              style: const TextStyle(color: Colors.green),
                             ),
                           ],
                         ),

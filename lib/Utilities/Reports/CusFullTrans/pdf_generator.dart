@@ -269,7 +269,7 @@ Future<void> generatePdf(
   );
 
   final output = await path_provider.getTemporaryDirectory();
-  final file = File("${output.path}/report.pdf");
+  final file = File("${output.path}/AccSta_($start - $end).pdf");
   await file.writeAsBytes(await pdf.save());
 
   OpenFile.open(file.path);
