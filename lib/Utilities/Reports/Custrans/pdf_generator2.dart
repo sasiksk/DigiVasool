@@ -74,7 +74,7 @@ Future<void> generateNewPdf(
                       ),
                     ),
                     pw.Text(
-                      'Account Statement as on $formattedDate',
+                      'Account_Statement_as_on_$formattedDate',
                       style: pw.TextStyle(
                         font: ttf,
                         fontSize: 18,

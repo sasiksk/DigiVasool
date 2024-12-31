@@ -1,22 +1,21 @@
-//import 'package:skfinance/AuthenticationScreen.dart';
+//import 'package:DigiVasool/AuthenticationScreen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:skfinance/BackupRestorePage.dart';
 
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/LineScreen.dart';
-import 'package:skfinance/Utilities/AppBar.dart';
-import 'package:skfinance/Utilities/EmptyCard1.dart';
-import 'package:skfinance/Utilities/EmptyDetailsCard.dart';
-import 'package:skfinance/Utilities/LineCard.dart';
-import 'package:skfinance/Utilities/Reports/CustomerReportScreen.dart';
-import 'package:skfinance/Utilities/drawer.dart';
-import 'package:skfinance/Utilities/FloatingActionButtonWithText.dart';
-import 'package:skfinance/linedetailScreen.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/LineScreen.dart';
+import 'package:DigiVasool/Utilities/AppBar.dart';
+import 'package:DigiVasool/Utilities/EmptyCard1.dart';
+import 'package:DigiVasool/Utilities/EmptyDetailsCard.dart';
+import 'package:DigiVasool/Utilities/LineCard.dart';
+import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
+import 'package:DigiVasool/Utilities/drawer.dart';
+import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
+import 'package:DigiVasool/linedetailScreen.dart';
 import 'finance_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skfinance/Screens/Main/SplashScreen.dart';
+import 'package:DigiVasool/Screens/Main/SplashScreen.dart';
 
 class IntroductionScreen extends StatelessWidget {
   const IntroductionScreen({super.key});

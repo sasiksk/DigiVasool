@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/Utilities/CustomTextField.dart';
-import 'package:skfinance/home_screen.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/Utilities/CustomTextField.dart';
+import 'package:DigiVasool/home_screen.dart';
 
 class LineScreen extends StatefulWidget {
   final Map<String, dynamic>? entry; // Add this line

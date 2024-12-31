@@ -1,49 +1,45 @@
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
 import 'package:intl/intl.dart';
-import 'package:skfinance/Utilities/Reports/Custrans/pdf_generator2.dart';
+import 'package:DigiVasool/Utilities/Reports/Custrans/pdf_generator2.dart';
 
 class DatabaseHelper {
-  static Future<String> getDatabasePath() async {
+  /*static Future<void> getDatabasePath() async {
     // Request manage external storage permission
-    var manageExternalStorageStatus =
-        await Permission.manageExternalStorage.status;
+    PermissionStatus manageExternalStorageStatus =
+        await Permission.manageExternalStorage.request();
+
     if (!manageExternalStorageStatus.isGranted) {
-      manageExternalStorageStatus =
-          await Permission.manageExternalStorage.request();
+      // Handle the case where manageExternalStorage permission is not granted
+      throw Exception('Manage external storage permission not granted');
     }
 
-    // Request storage permission
-    var storageStatus = await Permission.storage.status;
+    // If manageExternalStorage permission is granted, request storage permission
+    PermissionStatus storageStatus = await Permission.storage.request();
+
     if (!storageStatus.isGranted) {
-      storageStatus = await Permission.storage.request();
-    }
-
-    // If both permissions are granted, access app-specific external storage
-    if (manageExternalStorageStatus.isGranted && storageStatus.isGranted) {
-      // Specify the custom directory path
-      String customDirPath = '/storage/emulated/0/digivas/database/';
-      final directory = Directory(customDirPath);
-
-      // Create the directory if it doesn't exist
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
-
-      // Set the path to your database file
-      final dbPath = customDirPath;
-      print('Path to DB: $dbPath');
-      return dbPath;
-    } else {
+      // Handle the case where storage permission is not granted
       throw Exception('Storage permission not granted');
     }
-  }
+
+    /*String customDirPath = '/storage/emulated/0/digivas/database/';
+    final directory = Directory(customDirPath);
+
+    // Create the directory if it doesn't exist
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    // Set the path to your database file
+    final dbPath = customDirPath;
+    print('Path to DB: $dbPath');
+    return dbPath;*/
+  }*/
 
   static Future<List<int>> getLenIdsByLineName(String lineName) async {
     final db = await getDatabase();
@@ -107,8 +103,9 @@ class DatabaseHelper {
 
   static Future<sql.Database> getDatabase() async {
     // Get the database path
-    //final dbPath = await sql.getDatabasesPath();
-    final dbPath = await getDatabasePath();
+    final dbPath = await sql.getDatabasesPath();
+
+    //final dbPath1 = await getDatabasePath();
 
     // Open the database
     final db = await sql.openDatabase(
@@ -168,7 +165,8 @@ class DatabaseHelper {
   }
 
   static Future<void> dropDatabase() async {
-    final dbPath = await getDatabasePath();
+    final dbPath = await sql.getDatabasesPath();
+    //final dbPath = await getDatabasePath();
     final pathToDb = path.join(dbPath, 'finance3.db');
     await sql.deleteDatabase(pathToDb);
   }
@@ -879,7 +877,7 @@ class CollectionDB {
 
     final List<Map<String, dynamic>> result = await db.query(
       'Collection',
-      where: 'Date BETWEEN ? AND ?',
+      where: 'Date >= ? AND Date <= ?',
       whereArgs: [startDateStr, endDateStr],
     );
 

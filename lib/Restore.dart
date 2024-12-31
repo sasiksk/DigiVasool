@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:path/path.dart' as path;
+import 'package:sqflite/sqflite.dart' as sql;
 
 class RestorePage extends StatefulWidget {
   @override
@@ -19,7 +21,7 @@ class _RestorePageState extends State<RestorePage> {
 
     try {
       // Request storage permissions
-      if (await Permission.storage.request().isGranted &&
+      if (await Permission.storage.request().isGranted ||
           await Permission.manageExternalStorage.request().isGranted) {
         // Open file picker to select the database file
         FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -34,17 +36,20 @@ class _RestorePageState extends State<RestorePage> {
           if (selectedFile.path.endsWith('.db')) {
             // Proceed with restoring the database
             // Define the target database path
-            String dbPath = await DatabaseHelper.getDatabasePath();
-            dbPath = '${dbPath}finance3.db';
+
+            //String dbPath = await DatabaseHelper.getDatabasePath();
+            final dbPath = await sql.getDatabasesPath();
+            final dbFullPath = path.join(dbPath, 'finance3.db');
+            //dbPath = '${dbPath}finance3.db';
 
 // Delete the existing file if it exists
-            File dbFile = File(dbPath);
+            File dbFile = File(dbFullPath);
             if (await dbFile.exists()) {
               await dbFile.delete();
             }
 
 // Copy the selected file to the app's database directory, overwriting the existing file
-            await selectedFile.copy(dbPath);
+            await selectedFile.copy(dbFullPath);
 
             showDialog(
               context: context,

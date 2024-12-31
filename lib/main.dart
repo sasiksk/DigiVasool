@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:google_fonts/google_fonts.dart';
-import 'package:skfinance/Screens/Main/IntroductionDcreen.dart';
+import 'package:DigiVasool/Screens/Main/IntroductionDcreen.dart';
 
-import 'package:skfinance/home_screen.dart';
+import 'package:DigiVasool/home_screen.dart';
 //import 'package:firebase_core/firebase_core.dart';
 //import 'firebase_options.dart';
 

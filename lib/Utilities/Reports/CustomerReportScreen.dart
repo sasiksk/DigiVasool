@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skfinance/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
-import 'package:skfinance/Utilities/Reports/Custrans/ReportScreen1.dart';
+import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
+import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
 
 class ViewReportsPage extends StatelessWidget {
   @override

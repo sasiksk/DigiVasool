@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/Utilities/CustomTextField.dart';
-import 'package:skfinance/finance_provider.dart';
-import 'package:skfinance/linedetailScreen.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/Utilities/CustomTextField.dart';
+import 'package:DigiVasool/finance_provider.dart';
+import 'package:DigiVasool/linedetailScreen.dart';
 
 class PartyScreen extends ConsumerStatefulWidget {
   final String? partyName;

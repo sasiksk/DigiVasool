@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:googleapis/authorizedbuyersmarketplace/v1.dart';
 
-import 'package:skfinance/Backuppage.dart';
-import 'package:skfinance/ContactUs.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/Restore.dart';
-import 'package:skfinance/Utilities/Reports/CustomerReportScreen.dart';
-import 'package:skfinance/home_screen.dart';
-/*import 'package:skfinance/CollectionScreen.dart';
+import 'package:DigiVasool/Backuppage.dart';
+import 'package:DigiVasool/ContactUs.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/Restore.dart';
+import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
+import 'package:DigiVasool/home_screen.dart';
+/*import 'package:DigiVasool/CollectionScreen.dart';
 
-import 'package:skfinance/LendingScreen.dart';
-import 'package:skfinance/LineScreen.dart';
-import 'package:skfinance/ReportScreen.dart';
+import 'package:DigiVasool/LendingScreen.dart';
+import 'package:DigiVasool/LineScreen.dart';
+import 'package:DigiVasool/ReportScreen.dart';
 
-import 'package:skfinance/Utilities/PartyScreen.dart';
-import 'package:skfinance/Utilities/Reports/Custrans/ReportScreen1.dart';
+import 'package:DigiVasool/Utilities/PartyScreen.dart';
+import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
 
 
-import 'package:skfinance/linedetailScreen.dart';*/
+import 'package:DigiVasool/linedetailScreen.dart';*/
 
 Widget buildDrawer(BuildContext context) {
   return Drawer(

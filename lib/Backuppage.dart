@@ -17,7 +17,7 @@ class DownloadDBScreen extends StatelessWidget {
       print(dbPath);
       final dbFile = File(dbPath);
 
-      if (await Permission.storage.request().isGranted &&
+      if (await Permission.storage.request().isGranted ||
           await Permission.manageExternalStorage.request().isGranted) {
         // Show alert dialog
         showDialog(

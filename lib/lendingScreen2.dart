@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
 
-import 'package:skfinance/Utilities/AppBar.dart';
-import 'package:skfinance/Utilities/CustomDatePicker.dart';
-import 'package:skfinance/Utilities/CustomTextField.dart';
-import 'package:skfinance/finance_provider.dart';
+import 'package:DigiVasool/Utilities/AppBar.dart';
+import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
+import 'package:DigiVasool/Utilities/CustomTextField.dart';
+import 'package:DigiVasool/finance_provider.dart';
 import 'package:intl/intl.dart';
 
 class LendingCombinedDetailsScreen2 extends ConsumerWidget {

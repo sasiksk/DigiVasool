@@ -1,5 +1,7 @@
+import 'package:DigiVasool/Screens/Main/IntroductionDcreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../finance_provider.dart';
@@ -153,11 +155,51 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                           ref
                               .read(financeProvider.notifier)
                               .saveFinanceName(_controller.text);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+
+                          var manageExternalStorageStatus =
+                              await Permission.manageExternalStorage.request();
+                          var storageStatus =
+                              await Permission.storage.request();
+
+                          if (manageExternalStorageStatus.isGranted ||
+                              storageStatus.isGranted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 210, 240, 223),
+                                title: const Text('Permission Required'),
+                                content: Text(
+                                  'Storage permissions are required to proceed.',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: GoogleFonts.tinos().fontFamily,
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            ).then((_) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const IntroductionScreen()),
+                              );
+                            });
+                          }
                         }
                       },
                       child: Text(

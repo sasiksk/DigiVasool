@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/PartyDetailScreen.dart';
-import 'package:skfinance/Sms.dart';
-import 'package:skfinance/Utilities/CustomDatePicker.dart';
-import 'package:skfinance/finance_provider.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/PartyDetailScreen.dart';
+import 'package:DigiVasool/Sms.dart';
+import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
+import 'package:DigiVasool/finance_provider.dart';
 import 'package:intl/intl.dart';
 
 // ...existing code...

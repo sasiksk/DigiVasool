@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/Utilities/CustomDatePicker.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
 import 'package:intl/intl.dart';
-
-import 'package:skfinance/Utilities/Reports/CusFullTrans/pdf_generator.dart';
+import 'package:DigiVasool/Utilities/Reports/CusFullTrans/pdf_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skfinance/finance_provider.dart';
+import 'package:DigiVasool/finance_provider.dart';
 
 class ReportScreen2 extends StatefulWidget {
   const ReportScreen2({super.key});
@@ -17,7 +16,7 @@ class ReportScreen2 extends StatefulWidget {
 class _ReportScreen2State extends State<ReportScreen2> {
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
-  List<PdfEntry> _entries = []; // Change the type to List<PdfEntry>
+  List<PdfEntry> _entries = [];
   double _totalYouGave = 0.0;
   double _totalYouGot = 0.0;
 
@@ -29,54 +28,47 @@ class _ReportScreen2State extends State<ReportScreen2> {
       DateTime endDate =
           DateFormat('dd-MM-yyyy').parse(_endDateController.text);
 
-      // Ensure endDate includes the entire day
-      endDate =
-          endDate.add(const Duration(hours: 23, minutes: 59, seconds: 59));
+      // Ensure start date includes the start of the day
+      startDate = DateTime(startDate.year, startDate.month, startDate.day);
+
+      // Ensure end date includes the end of the day
+      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+      // Format dates to match the database format
+      final DateFormat dbDateFormat = DateFormat('yyyy-MM-dd');
 
       List<Map<String, dynamic>> entries =
           await CollectionDB.getEntriesBetweenDates(startDate, endDate);
+      print(entries);
 
       double totalYouGave = 0.0;
       double totalYouGot = 0.0;
 
-      Map<String, List<PdfEntry>> groupedEntries = {}; // Group entries by date
+      List<PdfEntry> pdfEntries = [];
 
       for (var entry in entries) {
-        DateTime entryDate = DateFormat('dd-MM-yyyy').parse(entry['Date']);
-
-        if (entryDate.isAfter(startDate) && entryDate.isBefore(endDate)) {
-          if (entry['CrAmt'] != null) {
-            totalYouGave += entry['CrAmt'];
-          }
-          if (entry['DrAmt'] != null) {
-            totalYouGot += entry['DrAmt'];
-          }
-
-          // Fetch party name
-          String partyName =
-              await DatabaseHelper.getPartyNameByLenId(entry['LenId']) ??
-                  'Unknown';
-
-          // Create PdfEntry
-          PdfEntry pdfEntry = PdfEntry(
-            partyName: partyName,
-            date: entry['Date'],
-            drAmt: entry['DrAmt'] ?? 0.0,
-            crAmt: entry['CrAmt'] ?? 0.0,
-          );
-
-          // Group by date
-          if (groupedEntries.containsKey(entry['Date'])) {
-            groupedEntries[entry['Date']]!.add(pdfEntry);
-          } else {
-            groupedEntries[entry['Date']] = [pdfEntry];
-          }
+        if (entry['CrAmt'] != null) {
+          totalYouGave += entry['CrAmt'];
         }
-      }
+        if (entry['DrAmt'] != null) {
+          totalYouGot += entry['DrAmt'];
+        }
 
-      // Flatten grouped entries into a single list
-      List<PdfEntry> pdfEntries =
-          groupedEntries.entries.expand((entry) => entry.value).toList();
+        // Fetch party name
+        String partyName =
+            await DatabaseHelper.getPartyNameByLenId(entry['LenId']) ??
+                'Unknown';
+
+        // Create PdfEntry
+        PdfEntry pdfEntry = PdfEntry(
+          partyName: partyName,
+          date: entry['Date'],
+          drAmt: entry['DrAmt'] ?? 0.0,
+          crAmt: entry['CrAmt'] ?? 0.0,
+        );
+
+        pdfEntries.add(pdfEntry);
+      }
 
       setState(() {
         _entries = pdfEntries;
@@ -183,95 +175,49 @@ class _ReportScreen2State extends State<ReportScreen2> {
                 itemCount: _entries.length,
                 itemBuilder: (context, index) {
                   var entry = _entries[index];
-                  var previousEntry = index > 0 ? _entries[index - 1] : null;
-                  bool showDateHeader =
-                      previousEntry == null || entry.date != previousEntry.date;
 
-                  double totalCrAmt = 0.0;
-                  double totalDrAmt = 0.0;
-
-                  for (var e in _entries.where((e) => e.date == entry.date)) {
-                    totalCrAmt += e.crAmt;
-                    totalDrAmt += e.drAmt;
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (showDateHeader)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 16, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 219, 247, 169),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormat('dd-MM').format(
-                                      DateFormat('dd-MM-yyyy')
-                                          .parse(entry.date)),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  '₹${totalCrAmt != 0.0 ? totalCrAmt : 0.0}',
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                                Text(
-                                  '₹${totalDrAmt != 0.0 ? totalDrAmt : 0.0}',
-                                  style: const TextStyle(color: Colors.green),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 16, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  entry.partyName.length >= 4
-                                      ? entry.partyName.substring(0, 4)
-                                      : entry.partyName,
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
+                            Text(
+                              DateFormat('dd-MM-yy').format(
+                                  DateFormat('dd-MM-yyyy').parse(entry.date)),
+                              style: const TextStyle(fontSize: 14),
                             ),
-                            Column(
-                              children: [
-                                Text(
-                                  entry.crAmt != 0.0 ? '₹${entry.crAmt}' : '',
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  entry.drAmt != 0.0 ? '₹${entry.drAmt}' : '',
-                                  style: const TextStyle(color: Colors.green),
-                                ),
-                              ],
+                            Text(
+                              entry.partyName,
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        Column(
+                          children: [
+                            Text(
+                              entry.crAmt != 0.0 ? '₹${entry.crAmt}' : '',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              entry.drAmt != 0.0 ? '₹${entry.drAmt}' : '',
+                              style: const TextStyle(color: Colors.green),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   );
                 },
                 separatorBuilder: (context, index) => const Divider(),
@@ -279,7 +225,6 @@ class _ReportScreen2State extends State<ReportScreen2> {
             ),
 
             // Download Button
-
             Consumer(
               builder: (context, ref, child) {
                 final finnaame = ref.watch(financeProvider);
@@ -293,7 +238,6 @@ class _ReportScreen2State extends State<ReportScreen2> {
                       _endDateController.text,
                       ref,
                       finnaame,
-                      // Pass the ref to generatePdf
                     ),
                     icon: const Icon(Icons.picture_as_pdf),
                     label: const Text('DOWNLOAD'),

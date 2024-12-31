@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skfinance/Data/Databasehelper.dart';
-import 'package:skfinance/Utilities/Reports/Custrans/pdf_generator2.dart';
-import 'package:skfinance/finance_provider.dart';
+import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:DigiVasool/Utilities/Reports/Custrans/pdf_generator2.dart';
+import 'package:DigiVasool/finance_provider.dart';
 
 class ReportScreen1 extends ConsumerWidget {
   const ReportScreen1({super.key});
