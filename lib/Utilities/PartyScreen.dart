@@ -98,8 +98,12 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
         final partyDetails = {
           'LineName': _lineName,
           'PartyName': _partyNameController.text,
-          'PartyPhnone': _partyPhoneNumberController.text,
-          'PartyAdd': _addressController.text,
+          'PartyPhnone': _partyPhoneNumberController.text.isNotEmpty
+              ? _partyPhoneNumberController.text
+              : null,
+          'PartyAdd': _addressController.text.isNotEmpty
+              ? _addressController.text
+              : null,
           'sms': _sms ? 1 : 0,
         };
 
@@ -120,8 +124,12 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
             lenId: await _getNextCid(),
             lineName: _lineName,
             partyName: _partyNameController.text,
-            partyPhoneNumber: _partyPhoneNumberController.text,
-            address: _addressController.text,
+            partyPhoneNumber: _partyPhoneNumberController.text.isNotEmpty
+                ? _partyPhoneNumberController.text
+                : '',
+            address: _addressController.text.isNotEmpty
+                ? _addressController.text
+                : '',
             sms: _sms,
           );
           ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +170,7 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
               children: [
                 const SizedBox(height: 16.0),
                 Text(
-                  'Line Name: $_lineName',
+                  'Book Name: $_lineName',
                   style: const TextStyle(fontSize: 16.0),
                 ),
                 const SizedBox(height: 16.0),
@@ -221,12 +229,15 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
                   hintText: 'Enter Party Phone Number',
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Party Phone Number';
-                    } else if (value.length != 10) {
-                      return 'Party Phone Number must be 10 digits';
-                    } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-                      return 'Please enter a valid Party Phone Number';
+                    if (_sms && (value == null || value.isEmpty)) {
+                      return 'Please enter Party Phone Number for SMS notifications';
+                    }
+                    if (value != null && value.isNotEmpty) {
+                      if (value.length != 10) {
+                        return 'Party Phone Number must be 10 digits';
+                      } else if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                        return 'Please enter a valid Party Phone Number';
+                      }
                     }
                     return null;
                   },
@@ -237,10 +248,7 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
                   labelText: 'Address',
                   hintText: 'Enter Address',
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter Address';
-                    }
-                    return null;
+                    return null; // Address is optional, so no validation needed
                   },
                 ),
                 const SizedBox(height: 16.0),

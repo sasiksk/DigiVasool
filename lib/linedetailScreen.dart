@@ -6,7 +6,7 @@ import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/PartyDetailScreen.dart';
 import 'package:DigiVasool/Utilities/AppBar.dart';
 import 'package:DigiVasool/Utilities/EmptyCard1.dart';
-import 'package:DigiVasool/Utilities/EmptyDetailsCard.dart';
+
 import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
 
 import 'package:DigiVasool/Utilities/PartyScreen.dart';
@@ -104,49 +104,124 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                 return EmptyCard1(
                   screenHeight: MediaQuery.of(context).size.height * 1.35,
                   screenWidth: MediaQuery.of(context).size.width * 1.10,
-                  title: 'Line Details',
-                  content: EmptyCard(
+                  title: 'Book Details',
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Total Given:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                '₹${(data['totalAmtGiven']! + data['totalProfit']!).toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 20),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Collected:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                '₹${data['totalAmtCollected']?.toStringAsFixed(2) ?? '0.00'}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'You Will Get:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              Text(
+                                '₹${(data['totalAmtGiven']! + data['totalProfit']! - data['totalAmtCollected']! - data['totalexpense']!).toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  /* EmptyCard(
                     screenHeight: MediaQuery.of(context).size.height,
                     screenWidth: MediaQuery.of(context).size.width,
                     items: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Given:',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                          Text(
-                            '₹${data['totalAmtGiven']?.toStringAsFixed(2) ?? '0.00'}',
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                        ],
+                      /*Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                        'Given:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                        Text(
+                        '₹${data['totalAmtGiven']?.toStringAsFixed(2) ?? '0.00'}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                      ],
                       ),
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Profit:',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                          Text(
-                            '₹${data['totalProfit']?.toStringAsFixed(2) ?? '0.00'}',
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                        ],
-                      ),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                        'Profit:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                        Text(
+                        '₹${data['totalProfit']?.toStringAsFixed(2) ?? '0.00'}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                      ],
+                      ),*/
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -186,29 +261,29 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                         ],
                       ),
                       /*Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Expense:',
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                          Text(
-                            '₹${data['totalexpense']?.toStringAsFixed(2) ?? '0.00'}',
-                            style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white),
-                          ),
-                        ],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                        'Expense:',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                        Text(
+                        '₹${data['totalexpense']?.toStringAsFixed(2) ?? '0.00'}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white),
+                        ),
+                      ],
                       ),*/
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Amt in Line:',
+                            'Total Amount:',
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w900,
@@ -224,7 +299,7 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                         ],
                       ),
                     ],
-                  ),
+                  ),*/
                 );
               }
             },
@@ -323,10 +398,10 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               colors: [
-                                Color.fromARGB(255, 4, 82, 1),
-                                Color.fromARGB(255, 205, 255, 182),
+                                Colors.blue[900]!,
+                                Colors.blue[400]!,
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -440,7 +515,7 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
         ],
       ),
       floatingActionButton: const FloatingActionButtonWithText(
-        label: 'Add Party',
+        label: 'Add New Party',
         navigateTo: PartyScreen(),
         icon: Icons.add,
       ),

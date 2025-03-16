@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/Utilities/CustomTextField.dart';
-import 'package:DigiVasool/home_screen.dart';
+import 'package:DigiVasool/Screens/Main/home_screen.dart';
 
 class LineScreen extends StatefulWidget {
   final Map<String, dynamic>? entry; // Add this line
@@ -54,7 +54,7 @@ class _LineScreenState extends State<LineScreen> {
           // Update LineName in Lending table
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Line entry updated successfully')),
+            const SnackBar(content: Text('Book entry updated successfully')),
           );
         } else {
           // Insert new entry
@@ -62,7 +62,7 @@ class _LineScreenState extends State<LineScreen> {
             _lineNameController.text,
           );
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Line entry added successfully')),
+            const SnackBar(content: Text('Book entry added successfully')),
           );
         }
         _resetForm();
@@ -83,7 +83,7 @@ class _LineScreenState extends State<LineScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Add Line',
+          'Add New Book',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blue,
@@ -97,11 +97,11 @@ class _LineScreenState extends State<LineScreen> {
             children: [
               CustomTextField(
                 controller: _lineNameController,
-                labelText: 'Enter Line Name',
-                hintText: 'Enter Line Name',
+                labelText: 'Enter Name',
+                hintText: 'Enter Ledger Name',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter Line Name';
+                    return 'Please enter  Name';
                   }
                   return null;
                 },

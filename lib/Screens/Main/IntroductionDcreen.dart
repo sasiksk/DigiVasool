@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:DigiVasool/Screens/Main/SplashScreen.dart';
+import 'package:DigiVasool/Styles/styles.dart';
+import 'package:DigiVasool/Widgets/common_widgets.dart';
 
 class IntroductionScreen extends StatelessWidget {
   const IntroductionScreen({super.key});
@@ -8,42 +10,23 @@ class IntroductionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 241, 245, 245),
-              Color.fromARGB(255, 95, 109, 101)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Center(
+      body: Center(
+        child: Container(
+          decoration: CommonWidgets.gradientBackground(),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Spacer(),
               Text(
                 'Welcome to Digi Vasool',
-                style: GoogleFonts.tinos(
-                  textStyle: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
-                  ),
-                ),
+                style: AppStyles.titleTextStyle,
               ),
               const SizedBox(height: 20),
               Text(
-                'Effortlessly manage your finances with our app. Start by entering your finance name and track your daily and weekly collection data with ease.',
+                '"Effortlessly manage your lending and borrowing activities with our app. Start by entering a record name and track your daily and weekly transactions with ease."',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.tinos(
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                  ),
-                ),
+                style: AppStyles.subtitleTextStyle,
               ),
               const SizedBox(height: 40),
               Image.asset(
@@ -53,16 +36,7 @@ class IntroductionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue.shade900,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  elevation: 5,
-                ),
+                style: AppStyles.elevatedButtonStyle,
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
@@ -82,13 +56,9 @@ class IntroductionScreen extends StatelessWidget {
               const Spacer(),
               Text(
                 'Sri Selva Vinayaga Software Solutions',
-                style: GoogleFonts.tinos(
-                  textStyle: const TextStyle(
-                      fontSize: 12,
-                      color: Color.fromARGB(137, 13, 59, 2),
-                      fontStyle: FontStyle.italic),
-                ),
+                style: AppStyles.footerTextStyle,
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

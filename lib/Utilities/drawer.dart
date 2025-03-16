@@ -1,3 +1,5 @@
+import 'package:DigiVasool/Screens/TableDetailsScreen.dart';
+import 'package:DigiVasool/Screens/bulk_insert_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:googleapis/authorizedbuyersmarketplace/v1.dart';
@@ -7,7 +9,7 @@ import 'package:DigiVasool/ContactUs.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/Restore.dart';
 import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
-import 'package:DigiVasool/home_screen.dart';
+import 'package:DigiVasool/Screens/Main/home_screen.dart';
 /*import 'package:DigiVasool/CollectionScreen.dart';
 
 import 'package:DigiVasool/LendingScreen.dart';
@@ -48,17 +50,30 @@ Widget buildDrawer(BuildContext context) {
             );
           },
         ),
-        /*ListTile(
-          leading: const Icon(Icons.backup),
-          title: const Text('Back Up'),
+        ListTile(
+          leading: const Icon(Icons.insert_drive_file),
+          title: const Text('Table Details'),
           onTap: () {
-            //navigate to home screen
+            Navigator.pop(context);
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => BackupRestorePage()),
+              MaterialPageRoute(
+                  builder: (context) => const TableDetailsScreen()),
             );
           },
-        ),*/
+        ),
+
+        ListTile(
+          leading: const Icon(Icons.insert_drive_file),
+          title: const Text('Bulk Insert'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const BulkInsertScreen()),
+            );
+          },
+        ),
         ListTile(
           leading: const Icon(Icons.backup),
           title: const Text('Back Up'),

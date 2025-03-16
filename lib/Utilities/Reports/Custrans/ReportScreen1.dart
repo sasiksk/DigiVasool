@@ -18,17 +18,34 @@ class ReportScreen1 extends ConsumerWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            // Fetch data from the database
-            Map<String, double> totals = await dbline.allLineDetails();
+            try {
+              // Fetch data from the database
+              Map<String, double> totals = await dbline.allLineDetails();
 
-            List<PdfEntry> entries = await dbLending.fetchLendingEntries();
-            double totalAmtGiven = totals['totalAmtGiven'] ?? 0.0;
-            double totalProfit = totals['totalProfit'] ?? 0.0;
-            double totalAmtReceived = totals['totalAmtRecieved'] ?? 0.0;
-            double totalExpense = await fetchTotalExpense();
+              List<PdfEntry> entries = await dbLending.fetchLendingEntries();
+              double totalAmtGiven = totals['totalAmtGiven'] ?? 0.0;
+              double totalProfit = totals['totalProfit'] ?? 0.0;
+              double totalAmtReceived = totals['totalAmtRecieved'] ?? 0.0;
+              double totalExpense = await fetchTotalExpense();
 
-            await generateNewPdf(entries, totalAmtGiven, totalProfit,
-                totalAmtReceived, totalExpense, financeName);
+              // Generate the PDF
+              await generateNewPdf(
+                entries,
+                totalAmtGiven,
+                totalProfit,
+                totalAmtReceived,
+                totalExpense,
+                financeName,
+              );
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('PDF generated successfully!')),
+              );
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error generating PDF: $e')),
+              );
+            }
           },
           child: const Text('Generate PDF'),
         ),

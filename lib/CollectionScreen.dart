@@ -6,6 +6,7 @@ import 'package:DigiVasool/Sms.dart';
 import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
 import 'package:DigiVasool/finance_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ...existing code...
 
@@ -31,7 +32,7 @@ class CollectionScreen extends ConsumerWidget {
     }
   }
 
-  Future<void> _updateLendingData(int lenId, double collectedAmt) async {
+  static Future<void> updateLendingData(int lenId, double collectedAmt) async {
     final lendingData = await dbLending.fetchLendingData(lenId);
 
     final double amtCollected = (lendingData['amtcollected']);
@@ -49,7 +50,8 @@ class CollectionScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _updateAmtRecieved(String lineName, double collectedAmt) async {
+  static Future<void> updateAmtRecieved(
+      String lineName, double collectedAmt) async {
     final amtRecieved = await dbline.fetchAmtRecieved(lineName);
     final updatedAmtRecieved = amtRecieved + collectedAmt;
 
@@ -59,12 +61,25 @@ class CollectionScreen extends ConsumerWidget {
     );
   }
 
-  Future<int> _getNextCid() async {
+  static Future<int> getNextCid() async {
     final db = await DatabaseHelper.getDatabase();
     final List<Map<String, dynamic>> result =
         await db.rawQuery('SELECT MAX(cid) as maxCid FROM Collection');
     final maxCid = result.first['maxCid'] as int?;
     return (maxCid ?? 0) + 1;
+  }
+
+  static Future<void> insertCollection(int lenId, double collectedAmt,
+      [String? date]) async {
+    final int cid = await getNextCid();
+    final db = await DatabaseHelper.getDatabase();
+    await db.insert('Collection', {
+      'cid': cid,
+      'LenId': lenId,
+      'Date': date ?? DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      'CrAmt': 0.0,
+      'DrAmt': collectedAmt,
+    });
   }
 
   @override
@@ -110,6 +125,7 @@ class CollectionScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   ElevatedButton(
                     onPressed: () async {
@@ -204,8 +220,10 @@ class CollectionScreen extends ConsumerWidget {
                                 });
                               }
 
+                              final SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
                               final financeName =
-                                  ref.watch(financeNameProvider);
+                                  prefs.getString('financeName') ?? '';
                               await sendSms(pno,
                                   'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
                             }
@@ -229,7 +247,7 @@ class CollectionScreen extends ConsumerWidget {
                                   currentgivenamt - newAmtCollected;
 
                               if (currentgivenamt >= newAmtCollected) {
-                                final cid = await _getNextCid();
+                                final cid = await getNextCid();
                                 await CollectionDB.insertCollection(
                                   cid: cid,
                                   lenId: lenid,
@@ -238,13 +256,14 @@ class CollectionScreen extends ConsumerWidget {
                                   drAmt: collectedAmt,
                                 );
 
-                                await _updateLendingData(lenid, collectedAmt);
-                                await _updateAmtRecieved(
-                                    lineName, collectedAmt);
+                                await updateLendingData(lenid, collectedAmt);
+                                await updateAmtRecieved(lineName, collectedAmt);
 
                                 if (sms == 1) {
+                                  final SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
                                   final financeName =
-                                      ref.watch(financeNameProvider);
+                                      prefs.getString('financeName') ?? '';
                                   await sendSms(pno,
                                       'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
                                 }

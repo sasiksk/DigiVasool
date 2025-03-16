@@ -6,7 +6,6 @@ import 'package:DigiVasool/LendingScreen.dart';
 
 import 'package:DigiVasool/Utilities/EmptyCard1.dart';
 
-import 'package:DigiVasool/Utilities/EmptyDetailsCard.dart';
 import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
 import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
 
@@ -183,227 +182,197 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                               ((data['duedays'] ?? 0) - givendays).toDouble();
                         }
 
-                        return EmptyCard(
-                            screenHeight: MediaQuery.of(context).size.height,
-                            screenWidth: MediaQuery.of(context).size.width,
-                            items: [
-                              /* Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Given:',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '₹${data['totalAmtGiven']?.toStringAsFixed(2) ?? '0.00'}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Profit:',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '₹${data['totalProfit']?.toStringAsFixed(2) ?? '0.00'}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),*/
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Total Given:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '₹${(data['totalAmtGiven'] ?? 0.0) + (data['totalProfit'] ?? 0.0)}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Collected:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '₹${data['totalAmtCollected']?.toStringAsFixed(2) ?? '0.00'}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Pending:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '₹${(data['totalAmtGiven'] ?? 0.0) + (data['totalProfit'] ?? 0.0) - (data['totalAmtCollected'] ?? 0.0)}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Days Over:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '${daysover ?? 0}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Days',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    daysrem != null && daysrem < 0
-                                        ? 'Overdue: ${daysrem.abs()}'
-                                        : 'Remaining: $daysrem',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                      color: daysrem != null && daysrem < 0
-                                          ? Colors.red
-                                          : Colors.white,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Total Given:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Days Paid:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    '${'${givendays.toStringAsFixed(2)}' ?? 0}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    pendays < 0
-                                        ? 'Advance Days Paid: ${pendays.abs().toStringAsFixed(2)}'
-                                        : 'Pending Days: ${pendays.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                      color: pendays < 0
-                                          ? const Color.fromARGB(
-                                              255, 245, 244, 247)
-                                          : Colors.white,
+                                    Text(
+                                      '₹${(data['totalAmtGiven'] ?? 0.0) + (data['totalProfit'] ?? 0.0)}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Lent Date:',
-                                    style: TextStyle(
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Collected:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      '₹${data['totalAmtCollected']?.toStringAsFixed(2) ?? '0.00'}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Pending:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      '₹${(data['totalAmtGiven'] ?? 0.0) + (data['totalProfit'] ?? 0.0) - (data['totalAmtCollected'] ?? 0.0)}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Days Over:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      '${daysover ?? 0}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Days',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      daysrem != null && daysrem < 0
+                                          ? 'Overdue: ${daysrem.abs()}'
+                                          : 'Remaining: $daysrem',
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    data['lentdate']?.toString() ?? 'N/A',
-                                    style: const TextStyle(
+                                        color: daysrem != null && daysrem < 0
+                                            ? Colors.red
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Days Paid:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      '${'${givendays.toStringAsFixed(2)}' ?? 0}',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      pendays < 0
+                                          ? 'Advance Days Paid: ${pendays.abs().toStringAsFixed(2)}'
+                                          : 'Pending Days: ${pendays.toStringAsFixed(2)}',
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Due Date:',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    duedate != null
-                                        ? DateFormat('dd-MM-yyyy')
-                                            .format(DateTime.parse(duedate))
-                                        : 'N/A',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            ]);
+                                        color: pendays < 0
+                                            ? const Color.fromARGB(
+                                                255, 94, 80, 3)
+                                            : Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Lent Date:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      data['lentdate']?.toString() ?? 'N/A',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Due Date:',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                    Text(
+                                      duedate != null
+                                          ? DateFormat('dd-MM-yyyy')
+                                              .format(DateTime.parse(duedate))
+                                          : 'N/A',
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
                       }
                     },
                   );
@@ -517,9 +486,15 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No entries found.'));
                 } else {
-                  final entries = snapshot.data!;
+                  // Create a modifiable copy of the entries list
+                  final List<Map<String, dynamic>> entries =
+                      List.from(snapshot.data!);
 
-                  // Assuming you start with a 0 balance
+                  // Sort by date (latest first)
+                  entries.sort((a, b) => DateFormat('dd-MM-yyyy')
+                      .parse(b['Date'])
+                      .compareTo(DateFormat('dd-MM-yyyy').parse(a['Date'])));
+
                   return ListView.separated(
                     itemCount: entries.length,
                     itemBuilder: (context, index) {
@@ -528,8 +503,6 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                       final crAmt = entry['CrAmt'] ?? 0.0;
                       final drAmt = entry['DrAmt'] ?? 0.0;
                       final cid = entry['cid'];
-
-                      // Update balance based on credit or debit amount
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -549,7 +522,6 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                             if (crAmt > 0) {
                               final partyDetails =
                                   await dbLending.getPartyDetails(lenId);
-                              //get the LenId for the current cid from the collection table
                               amt = 0;
                               Navigator.of(context).push(
                                 MaterialPageRoute(

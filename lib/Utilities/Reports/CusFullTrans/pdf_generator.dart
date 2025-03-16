@@ -188,78 +188,50 @@ Future<void> generatePdf(
                 ],
               ),
               // Table Rows
-              ...groupedEntries.entries.expand((entry) {
-                return [
-                  pw.TableRow(
-                    children: [
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text(
-                          entry.key,
-                          style: pw.TextStyle(
-                            font: ttf,
-                            fontSize: 12,
-                            fontWeight: pw.FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text(''),
-                      ),
-                      pw.Padding(
-                        padding: pw.EdgeInsets.all(8),
-                        child: pw.Text(''),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(8),
-                        child: pw.Text(''),
-                      ),
-                    ],
+              ...entries.map((pdfEntry) {
+                return pw.TableRow(
+                  decoration: const pw.BoxDecoration(
+                    color: PdfColors.white,
                   ),
-                  ...entry.value.map((pdfEntry) {
-                    return pw.TableRow(
-                      decoration: const pw.BoxDecoration(
-                        color: PdfColors.white,
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        pdfEntry.partyName,
+                        style: pw.TextStyle(font: ttf, fontSize: 10),
                       ),
-                      children: [
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text(''),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        pdfEntry.date,
+                        style: pw.TextStyle(font: ttf, fontSize: 10),
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        pdfEntry.drAmt != 0.0 ? '\u20B9${pdfEntry.drAmt}' : '',
+                        style: pw.TextStyle(
+                          font: ttf,
+                          fontSize: 10,
+                          color: PdfColors.red,
                         ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text(
-                            pdfEntry.date,
-                            style: pw.TextStyle(font: ttf, fontSize: 10),
-                          ),
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        pdfEntry.crAmt != 0.0 ? '\u20B9${pdfEntry.crAmt}' : '',
+                        style: pw.TextStyle(
+                          font: ttf,
+                          fontSize: 10,
+                          color: PdfColors.green,
                         ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text(
-                            pdfEntry.drAmt != 0.0
-                                ? '\u20B9${pdfEntry.drAmt}'
-                                : '',
-                            style: pw.TextStyle(
-                                font: ttf, fontSize: 10, color: PdfColors.red),
-                          ),
-                        ),
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text(
-                            pdfEntry.crAmt != 0.0
-                                ? '\u20B9${pdfEntry.crAmt}'
-                                : '',
-                            style: pw.TextStyle(
-                                font: ttf,
-                                fontSize: 10,
-                                color: PdfColors.green),
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ];
+                      ),
+                    ),
+                  ],
+                );
               }).toList(),
             ],
           ),

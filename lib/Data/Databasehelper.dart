@@ -332,6 +332,32 @@ class dbline {
 }
 
 class dbLending {
+  static Future<List<Map<String, dynamic>>?> getLendingDetailsByLineName(
+      String lineName) async {
+    final db = await DatabaseHelper.getDatabase();
+    final List<Map<String, dynamic>> result = await db.query(
+      'Lending',
+      columns: [
+        'LenId',
+        'PartyName',
+        'amtgiven',
+        'sms',
+        'profit',
+        'amtcollected',
+        'duedays',
+        'status'
+      ],
+      where: 'LineName = ? AND status = ?',
+      whereArgs: [lineName, 'active'],
+    );
+
+    if (result.isNotEmpty) {
+      return result;
+    } else {
+      return null;
+    }
+  }
+
   static Future<List<PdfEntry>> fetchLendingEntries() async {
     final db = await DatabaseHelper.getDatabase();
     final List<Map<String, dynamic>> result = await db.query('Lending');
@@ -555,7 +581,16 @@ class dbLending {
     final db = await DatabaseHelper.getDatabase();
     final List<Map<String, dynamic>> result = await db.query(
       'Lending',
-      columns: [' amtgiven', 'profit', 'amtcollected', 'PartyPhnone', 'sms'],
+      columns: [
+        ' amtgiven',
+        'profit',
+        'amtcollected',
+        'PartyPhnone',
+        'sms',
+        'Lentdate',
+        'duedays',
+        'status'
+      ],
       where: 'LenId = ?',
       whereArgs: [lenId],
     );
@@ -807,10 +842,10 @@ class CollectionDB {
     }
   }
 
-  static Future<Map<String, double>> getTodaysCollectionAndGiven() async {
+  static Future<Map<String, double>> getCollectionAndGivenByDate(
+      DateTime date) async {
     final db = await DatabaseHelper.getDatabase();
-    final today = DateTime.now();
-    final todayString = DateFormat('dd-MM-yyyy').format(today);
+    final dateString = DateFormat('dd-MM-yyyy').format(date);
 
     final result = await db.rawQuery('''
     SELECT 
@@ -818,7 +853,7 @@ class CollectionDB {
       SUM(CASE WHEN CrAmt IS NOT NULL THEN CrAmt ELSE 0 END) AS totalCrAmt
     FROM Collection
     WHERE Date = ?
-  ''', [todayString]);
+  ''', [dateString]);
 
     final totalDrAmt = (result[0]['totalDrAmt'] ?? 0.0) as double;
     final totalCrAmt = (result[0]['totalCrAmt'] ?? 0.0) as double;
@@ -871,10 +906,12 @@ class CollectionDB {
   static Future<List<Map<String, dynamic>>> getEntriesBetweenDates(
       DateTime startDate, DateTime endDate) async {
     final db = await DatabaseHelper.getDatabase();
-    final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-    final String startDateStr = dateFormat.format(startDate);
-    final String endDateStr = dateFormat.format(endDate);
 
+    // Format the DateTime objects as dd-MM-yyyy strings
+    final String startDateStr = DateFormat('dd-MM-yyyy').format(startDate);
+    final String endDateStr = DateFormat('dd-MM-yyyy').format(endDate);
+
+    // Query the database
     final List<Map<String, dynamic>> result = await db.query(
       'Collection',
       where: 'Date >= ? AND Date <= ?',

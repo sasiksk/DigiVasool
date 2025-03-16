@@ -14,11 +14,11 @@ class LineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onLineSelected, // Correctly invoke the callback
-      child: Container(
-        width: screenWidth,
-        // Full width minus padding (20 on each side)
+    return Container(
+      width: screenWidth,
+      // Full width minus padding (20 on each side)
+      child: InkWell(
+        onTap: onLineSelected, // Correctly invoke the callback
         child: Card(
           elevation: 10.0,
           shape: RoundedRectangleBorder(

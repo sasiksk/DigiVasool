@@ -23,23 +23,15 @@ class _ReportScreen2State extends State<ReportScreen2> {
   Future<void> _fetchEntries() async {
     if (_startDateController.text.isNotEmpty &&
         _endDateController.text.isNotEmpty) {
+      // Parse the start and end dates from the controllers
       DateTime startDate =
           DateFormat('dd-MM-yyyy').parse(_startDateController.text);
       DateTime endDate =
           DateFormat('dd-MM-yyyy').parse(_endDateController.text);
 
-      // Ensure start date includes the start of the day
-      startDate = DateTime(startDate.year, startDate.month, startDate.day);
-
-      // Ensure end date includes the end of the day
-      endDate = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
-
-      // Format dates to match the database format
-      final DateFormat dbDateFormat = DateFormat('yyyy-MM-dd');
-
+      // Fetch entries from the database
       List<Map<String, dynamic>> entries =
           await CollectionDB.getEntriesBetweenDates(startDate, endDate);
-      print(entries);
 
       double totalYouGave = 0.0;
       double totalYouGot = 0.0;
@@ -62,7 +54,7 @@ class _ReportScreen2State extends State<ReportScreen2> {
         // Create PdfEntry
         PdfEntry pdfEntry = PdfEntry(
           partyName: partyName,
-          date: entry['Date'],
+          date: entry['Date'], // Keep the date as it is from the database
           drAmt: entry['DrAmt'] ?? 0.0,
           crAmt: entry['CrAmt'] ?? 0.0,
         );
@@ -190,8 +182,10 @@ class _ReportScreen2State extends State<ReportScreen2> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              DateFormat('dd-MM-yy').format(
-                                  DateFormat('dd-MM-yyyy').parse(entry.date)),
+                              // Format the date as dd-MM-yyyy
+                              DateFormat('dd-MM-yyyy').format(
+                                DateFormat('dd-MM-yyyy').parse(entry.date),
+                              ),
                               style: const TextStyle(fontSize: 14),
                             ),
                             Text(
@@ -224,33 +218,35 @@ class _ReportScreen2State extends State<ReportScreen2> {
               ),
             ),
 
-            // Download Button
-            Consumer(
-              builder: (context, ref, child) {
-                final finnaame = ref.watch(financeProvider);
-                return Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () => generatePdf(
-                      _entries,
-                      _totalYouGave,
-                      _totalYouGot,
-                      _startDateController.text,
-                      _endDateController.text,
-                      ref,
-                      finnaame,
-                    ),
-                    icon: const Icon(Icons.picture_as_pdf),
-                    label: const Text('DOWNLOAD'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+            // Download Button in SafeArea
+            SafeArea(
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final finnaame = ref.watch(financeProvider);
+                  return Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () => generatePdf(
+                        _entries,
+                        _totalYouGave,
+                        _totalYouGot,
+                        _startDateController.text,
+                        _endDateController.text,
+                        ref,
+                        finnaame,
+                      ),
+                      icon: const Icon(Icons.picture_as_pdf),
+                      label: const Text('DOWNLOAD'),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ],
         ),
