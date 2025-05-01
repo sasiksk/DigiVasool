@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/PartyDetailScreen.dart';
+import 'package:DigiVasool/Screens/Main/PartyDetailScreen.dart';
 import 'package:DigiVasool/Sms.dart';
 import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
 import 'package:DigiVasool/finance_provider.dart';
@@ -93,6 +93,8 @@ class CollectionScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(partyName ?? "Add Collection"),
+        centerTitle: true,
+        elevation: 2,
       ),
       body: SafeArea(
         child: Column(

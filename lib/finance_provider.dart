@@ -86,7 +86,6 @@ class LenIdNotifier extends StateNotifier<int?> {
 }
 
 // Provider for LenStatus
-// Provider for LenStatus
 final lenStatusProvider =
     StateNotifierProvider<LenStatusNotifier, String>((ref) {
   return LenStatusNotifier();
@@ -115,6 +114,24 @@ class LenStatusNotifier extends StateNotifier<String> {
   }
 }
 
-final financeNameProvider = StateProvider<String>((ref) {
-  return 'Default Finance Name';
+final financeNameProvider =
+    StateNotifierProvider<FinanceNameNotifier, String>((ref) {
+  return FinanceNameNotifier();
 });
+
+class FinanceNameNotifier extends StateNotifier<String> {
+  FinanceNameNotifier() : super('') {
+    _loadFinanceName();
+  }
+
+  Future<void> _loadFinanceName() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getString('financeName') ?? 'Default Finance Name';
+  }
+
+  Future<void> saveFinanceName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    state = name;
+    await prefs.setString('financeName', name);
+  }
+}

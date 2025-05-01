@@ -1,16 +1,17 @@
+import 'package:DigiVasool/Utilities/amtbuild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/LineScreen.dart';
+import 'package:DigiVasool/Screens/Main/LineScreen.dart';
 import 'package:DigiVasool/Utilities/AppBar.dart';
 import 'package:DigiVasool/Utilities/EmptyCard1.dart';
 import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
 import 'package:DigiVasool/Utilities/drawer.dart';
 import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
-import 'package:DigiVasool/linedetailScreen.dart';
+import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
 import '../../finance_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -78,7 +79,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(currentLineNameProvider.notifier).state = lineName;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LineDetailScreen()),
+      MaterialPageRoute(builder: (context) => const LineDetailScreen()),
     );
   }
 
@@ -231,109 +232,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Total:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.deepPurpleAccent,
-                          ),
-                        ),
-                        TweenAnimationBuilder<double>(
-                          tween: Tween<double>(
-                              begin: 0, end: totalProfit + totalAmtGiven),
-                          duration: const Duration(milliseconds: 300),
-                          builder: (context, value, child) {
-                            final formattedValue = NumberFormat.currency(
-                              decimalDigits: 2,
-                              symbol: '₹',
-                              locale: 'en_IN',
-                            ).format(value);
-                            return Text(
-                              formattedValue,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.purpleAccent,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Received:',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.deepPurpleAccent,
-                          ),
-                        ),
-                        TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0, end: totalAmtRecieved),
-                          duration: const Duration(milliseconds: 300),
-                          builder: (context, value, child) {
-                            final formattedValue = NumberFormat.currency(
-                              decimalDigits: 2,
-                              symbol: '₹',
-                              locale: 'en_IN',
-                            ).format(value);
-                            return Text(
-                              formattedValue,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.purpleAccent,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                    buildAmountBlock('Total:', totalProfit + totalAmtGiven),
+                    buildAmountBlock('Received:', totalAmtRecieved),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'You will get:',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.deepPurpleAccent,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween<double>(
-                            begin: 0,
-                            end:
-                                totalAmtGiven - totalAmtRecieved + totalProfit),
-                        duration: const Duration(milliseconds: 300),
-                        builder: (context, value, child) {
-                          final formattedValue = NumberFormat.currency(
-                            decimalDigits: 2,
-                            symbol: '₹',
-                            locale: 'en_IN',
-                          ).format(value);
-                          return Text(
-                            formattedValue,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.purpleAccent,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  child: buildAmountBlock(
+                    'You will get:',
+                    totalAmtGiven - totalAmtRecieved + totalProfit,
+                    centerAlign: true,
+                    textSize: 18,
+                    labelColor: Colors.indigo,
+                    valueColor: Colors.deepPurple,
                   ),
                 ),
               ],

@@ -4,7 +4,8 @@ class FloatingActionButtonWithText extends StatelessWidget {
   final String label;
   final Widget navigateTo;
   final IconData? icon;
-  final String? heroTag; // Optional heroTag
+  final String? heroTag;
+  final MaterialColor? color; // Optional color
 
   const FloatingActionButtonWithText({
     super.key,
@@ -12,6 +13,7 @@ class FloatingActionButtonWithText extends StatelessWidget {
     required this.navigateTo,
     this.icon,
     this.heroTag,
+    this.color, // Optional parameter
   });
 
   @override
@@ -31,8 +33,8 @@ class FloatingActionButtonWithText extends StatelessWidget {
           : null,
       label: Text(label,
           style: const TextStyle(fontSize: 14, color: Colors.white)),
-      backgroundColor:
-          Colors.blueAccent.shade700, // Set the background color to blue
+      backgroundColor: color ??
+          Colors.blueAccent.shade700, // Use provided color or default to blue
       heroTag: heroTag, // Set the heroTag if provided
     );
   }

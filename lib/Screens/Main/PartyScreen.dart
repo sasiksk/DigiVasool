@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/Utilities/CustomTextField.dart';
 import 'package:DigiVasool/finance_provider.dart';
-import 'package:DigiVasool/linedetailScreen.dart';
+import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
 
 class PartyScreen extends ConsumerStatefulWidget {
   final String? partyName;
@@ -225,8 +225,9 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
                 const SizedBox(height: 16.0),
                 CustomTextField(
                   controller: _partyPhoneNumberController,
-                  labelText: 'Party Phone Number',
-                  hintText: 'Enter Party Phone Number',
+                  labelText: 'Party Phone Number(Optional)',
+                  hintText: 'Enter Party Phone Number-Optional',
+                  // Optional field, so no validator needed
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (_sms && (value == null || value.isEmpty)) {
@@ -245,8 +246,8 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
                 const SizedBox(height: 16.0),
                 CustomTextField(
                   controller: _addressController,
-                  labelText: 'Address',
-                  hintText: 'Enter Address',
+                  labelText: 'Address(Optional)',
+                  hintText: 'Enter Address-Optional',
                   validator: (value) {
                     return null; // Address is optional, so no validation needed
                   },

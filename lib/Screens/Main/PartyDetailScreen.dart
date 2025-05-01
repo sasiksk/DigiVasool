@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:DigiVasool/CollectionScreen.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/LendingScreen.dart';
+import 'package:DigiVasool/Screens/Main/LendingScreen.dart';
 
 import 'package:DigiVasool/Utilities/EmptyCard1.dart';
 
 import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
 import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
 
-import 'package:DigiVasool/Utilities/TransactionCard.dart';
+import 'package:DigiVasool/Screens/Main/lendingScreen2.dart';
+import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import 'package:DigiVasool/lendingScreen2.dart';
-import 'package:DigiVasool/linedetailScreen.dart';
-
-import 'finance_provider.dart';
+import '../../finance_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 class PartyDetailScreen extends ConsumerStatefulWidget {
   const PartyDetailScreen({super.key});
@@ -57,36 +58,52 @@ class PartyDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
-  static Future<void> deleteEntry(BuildContext context, int cid,
-      String linename, double drAmt, int lenId, String partyName) async {
-    await CollectionDB.deleteEntry(cid);
-    final lendingData = await dbLending.fetchLendingData(lenId);
-    final amtrecievedLine = await dbline.fetchAmtRecieved(linename);
-    final newamtrecived = amtrecievedLine + -drAmt;
-    await dbline.updateLine(
-      lineName: linename,
-      updatedValues: {'Amtrecieved': newamtrecived},
+  Widget _buildSummaryItem(String label, double amount, Color color) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.tinos(
+            fontSize: 13,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '₹${amount.toStringAsFixed(2)}',
+          style: GoogleFonts.tinos(
+            fontSize: 15,
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
+  }
 
-    final double currentAmtCollected = lendingData['amtcollected'];
-    final double newAmtCollected = currentAmtCollected - drAmt;
-    const String status = 'active';
+  Future<String?> fetchPartyPhoneNumber(int lenId) async {
+    try {
+      final lendingData = await dbLending.fetchLendingData(lenId);
+      return lendingData[
+          'PartyPhnone']; // Ensure the column name matches your database
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error fetching phone number')),
+      );
+      return null;
+    }
+  }
 
-    final updatedValues = {'amtcollected': newAmtCollected, 'status': status};
-    await dbLending.updateAmtCollectedAndGiven(
-      lineName: linename,
-      partyName: partyName,
-      lenId: lenId,
-      updatedValues: updatedValues,
-    );
-
-    // Navigator.of(context).pop(); // Close the confirmation dialog
-    // Close the options dialog
-    /*Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const PartyDetailScreen(),
-      ),
-    );*/
+  Future<void> makePhoneCall(String phoneNumber) async {
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch phone dialer')),
+      );
+    }
   }
 
   @override
@@ -113,6 +130,26 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
           },
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.phone_in_talk_outlined), // Call icon
+            onPressed: () async {
+              if (lenId != null) {
+                final phoneNumber = await fetchPartyPhoneNumber(lenId);
+                if (phoneNumber != null && phoneNumber.isNotEmpty) {
+                  makePhoneCall(phoneNumber);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Phone number not available')),
+                  );
+                }
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid party details')),
+                );
+              }
+            },
+          ),
+          const SizedBox(width: 12), // Add gap between actions
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
@@ -390,7 +427,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
           // i need a card with single row .which contains 3 icon buttons
           // 1. party report 2. sms reminder  3. watsup reminder
           Padding(
-              padding: const EdgeInsets.fromLTRB(15, 2, 25, 15),
+              padding: const EdgeInsets.fromLTRB(15, 2, 25, 2),
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -452,15 +489,15 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                   ],
                 ),
               )),
-
-          const Padding(
-            padding: EdgeInsets.only(right: 25),
-            child: Center(
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 'Entry Details',
-                style: TextStyle(
+                style: GoogleFonts.tinos(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
                 ),
               ),
             ),
@@ -479,112 +516,200 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                   final List<Map<String, dynamic>> entries =
                       List.from(snapshot.data!);
 
-                  // Sort by date (latest first)
+                  // Sort by latest date
                   entries.sort((a, b) => DateFormat('yyyy-MM-dd')
                       .parse(b['Date'])
                       .compareTo(DateFormat('yyyy-MM-dd').parse(a['Date'])));
 
-                  return ListView.separated(
-                    itemCount: entries.length,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      final rawDate = entry['Date'];
-                      final crAmt = entry['CrAmt'] ?? 0.0;
-                      final drAmt = entry['DrAmt'] ?? 0.0;
-                      final cid = entry['cid'];
+                  // Calculate totals
+                  double totalCredit = 0, totalDebit = 0;
+                  for (var entry in entries) {
+                    totalCredit += entry['CrAmt'] ?? 0.0;
+                    totalDebit += entry['DrAmt'] ?? 0.0;
+                  }
+                  double balance = totalDebit - totalCredit;
 
-                      // Format date: "21 Mar 2025"
-                      final formattedDate = DateFormat('dd MMM yyyy')
-                          .format(DateFormat('yyyy-MM-dd').parse(rawDate));
-
-                      return Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 4),
-                        color: Colors.white,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 6),
-                          leading: CircleAvatar(
-                            backgroundColor: crAmt > 0
-                                ? Colors.red.shade700
-                                : Colors.green.shade700,
-                            radius: 18,
-                            child: Icon(
-                              crAmt > 0
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            formattedDate,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          subtitle: Text(
-                            crAmt > 0
-                                ? "Credit: ₹${crAmt.toStringAsFixed(2)}"
-                                : "Debit: ₹${drAmt.toStringAsFixed(2)}",
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: crAmt > 0
-                                  ? Colors.red.shade700
-                                  : Colors.green.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          trailing: const Icon(Icons.chevron_right,
-                              color: Colors.grey, size: 18),
-                          onTap: () async {
-                            print(rawDate);
-                            if (drAmt > 0) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => CollectionScreen(
-                                    preloadedDate: rawDate,
-                                    preloadedAmtCollected: drAmt,
-                                    preloadedCid: cid,
-                                  ),
-                                ),
-                              );
-                            }
-                            if (crAmt > 0) {
-                              final partyDetails =
-                                  await dbLending.getPartyDetails(lenId);
-                              amt = 0;
-                              print(partyDetails);
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      LendingCombinedDetailsScreen(
-                                    preloadedamtgiven:
-                                        partyDetails?['amtgiven'] ?? 0.0,
-                                    preladedprofit:
-                                        partyDetails?['profit'] ?? 0.0,
-                                    preladedlendate:
-                                        partyDetails?['Lentdate'] ?? '',
-                                    preladedduedays:
-                                        partyDetails?['duedays'] ?? 0,
-                                    cid: cid,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      setState(() {});
                     },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 4),
+                    child: Column(
+                      children: [
+                        // Summary card
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  _buildSummaryItem(
+                                      "Credit", totalCredit, Colors.red),
+                                  _buildSummaryItem(
+                                      "Debit", totalDebit, Colors.green),
+                                  _buildSummaryItem(
+                                      "Balance",
+                                      balance.abs(),
+                                      balance >= 0
+                                          ? Colors.green
+                                          : const Color.fromARGB(
+                                              255, 24, 2, 77)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Entry List
+                        Expanded(
+                          child: AnimationLimiter(
+                            child: ListView.separated(
+                              itemCount: entries.length,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 2),
+                              itemBuilder: (context, index) {
+                                final entry = entries[index];
+                                final rawDate = entry['Date'];
+                                final crAmt = entry['CrAmt'] ?? 0.0;
+                                final drAmt = entry['DrAmt'] ?? 0.0;
+                                final cid = entry['cid'];
+
+                                final isCredit = crAmt > 0;
+                                final formattedDate = DateFormat('dd MMM yyyy')
+                                    .format(DateFormat('yyyy-MM-dd')
+                                        .parse(rawDate));
+                                final amountText = isCredit
+                                    ? "Credit: ₹${crAmt.toStringAsFixed(2)}"
+                                    : "Debit: ₹${drAmt.toStringAsFixed(2)}";
+                                final amountColor = isCredit
+                                    ? Colors.red.shade600
+                                    : Colors.green.shade700;
+                                final icon = isCredit
+                                    ? Icons.arrow_upward
+                                    : Icons.arrow_downward;
+
+                                return AnimationConfiguration.staggeredList(
+                                  position: index,
+                                  duration: const Duration(milliseconds: 500),
+                                  child: SlideAnimation(
+                                    verticalOffset: 50.0,
+                                    child: FadeInAnimation(
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          if (drAmt > 0) {
+                                            Navigator.of(context)
+                                                .push(MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CollectionScreen(
+                                                preloadedDate: rawDate,
+                                                preloadedAmtCollected: drAmt,
+                                                preloadedCid: cid,
+                                              ),
+                                            ));
+                                          } else if (crAmt > 0) {
+                                            final partyDetails = await dbLending
+                                                .getPartyDetails(lenId);
+                                            amt = 0;
+                                            Navigator.of(context)
+                                                .push(MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LendingCombinedDetailsScreen(
+                                                preloadedamtgiven:
+                                                    partyDetails?['amtgiven'] ??
+                                                        0.0,
+                                                preladedprofit:
+                                                    partyDetails?['profit'] ??
+                                                        0.0,
+                                                preladedlendate:
+                                                    partyDetails?['Lentdate'] ??
+                                                        '',
+                                                preladedduedays:
+                                                    partyDetails?['duedays'] ??
+                                                        0,
+                                                cid: cid,
+                                              ),
+                                            ));
+                                          }
+                                        },
+                                        child: Card(
+                                          elevation: 3,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                          ),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 4, horizontal: 6),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                left: BorderSide(
+                                                    color: amountColor,
+                                                    width: 5),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                              color:
+                                                  Theme.of(context).cardColor,
+                                            ),
+                                            child: ListTile(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 10),
+                                              leading: CircleAvatar(
+                                                backgroundColor: amountColor
+                                                    .withOpacity(0.9),
+                                                child: Icon(icon,
+                                                    color: Colors.white,
+                                                    size: 20),
+                                              ),
+                                              title: Text(
+                                                formattedDate,
+                                                style: GoogleFonts.tinos(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.color,
+                                                ),
+                                              ),
+                                              subtitle: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4),
+                                                child: Text(
+                                                  amountText,
+                                                  style: GoogleFonts.tinos(
+                                                    fontSize: 13,
+                                                    color: amountColor,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              trailing: const Icon(
+                                                  Icons.chevron_right,
+                                                  color: Colors.grey),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
               },
@@ -604,11 +729,13 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                 label: 'You Gave',
                 navigateTo: LendingCombinedDetailsScreen2(),
                 icon: Icons.add,
+                color: Colors.purple,
               ),
               FloatingActionButtonWithText(
                 label: 'You Got',
                 navigateTo: CollectionScreen(),
                 icon: Icons.add,
+                color: Colors.green,
               ),
             ],
           ),

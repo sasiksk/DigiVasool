@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-
 import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/Utilities/CustomTextField.dart';
 import 'package:DigiVasool/Screens/Main/home_screen.dart';
+import 'package:DigiVasool/Utilities/AppBar.dart'; // Import CustomAppBar
 
 class LineScreen extends StatefulWidget {
-  final Map<String, dynamic>? entry; // Add this line
+  final Map<String, dynamic>? entry;
 
-  const LineScreen({super.key, this.entry}); // Update the constructor
+  const LineScreen({super.key, this.entry});
 
   @override
   _LineScreenState createState() => _LineScreenState();
@@ -51,7 +51,6 @@ class _LineScreenState extends State<LineScreen> {
             oldLineName: widget.entry!['Linename'],
             newLineName: _lineNameController.text,
           );
-          // Update LineName in Lending table
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Book entry updated successfully')),
@@ -81,12 +80,8 @@ class _LineScreenState extends State<LineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Add New Book',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.blue,
+      appBar: CustomAppBar(
+        title: widget.entry != null ? 'Edit Book' : 'Add New Book',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -97,11 +92,11 @@ class _LineScreenState extends State<LineScreen> {
             children: [
               CustomTextField(
                 controller: _lineNameController,
-                labelText: 'Enter Name',
-                hintText: 'Enter Ledger Name',
+                labelText: 'Enter Line Name',
+                hintText: 'Enter Line Name',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter  Name';
+                    return 'Please enter Name';
                   }
                   return null;
                 },

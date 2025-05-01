@@ -66,7 +66,7 @@ class _EmptyCard1State extends State<EmptyCard1> {
                         widget.title ?? 'Default Title',
                         style: TextStyle(
                           fontFamily: GoogleFonts.tinos().fontFamily,
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: const Color.fromARGB(255, 23, 56, 1),
                         ),
