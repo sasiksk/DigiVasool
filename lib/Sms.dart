@@ -1,50 +1,44 @@
 import 'package:url_launcher/url_launcher.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 Future<void> sendSms(String phoneNumber, String message,
     {bool useWhatsApp = false}) async {
   try {
-    print(message);
+    print('Message: $message');
+
+    // Format the phone number (remove +, spaces, and non-numeric characters)
+    final String formattedPhoneNumber =
+        '+91${phoneNumber.replaceAll(RegExp(r'[^\d]'), '')}';
+    final String encodedMessage = Uri.encodeComponent(message);
 
     if (useWhatsApp) {
-      // Format the phone number for WhatsApp
-      final String formattedPhoneNumber =
-          phoneNumber.replaceAll('+', '').replaceAll(' ', '');
-      final String encodedMessage = Uri.encodeComponent(message);
-
       // Create the WhatsApp URL
       final Uri whatsappUri =
           Uri.parse('https://wa.me/$formattedPhoneNumber?text=$encodedMessage');
 
-      // Launch WhatsApp
+      print('WhatsApp URL: $whatsappUri');
+
+      // Check if the URL can be launched
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
         print('WhatsApp message sent to $phoneNumber');
       } else {
-        print('Could not launch WhatsApp');
+        print(
+            'Could not launch WhatsApp. Ensure WhatsApp is installed and the number is registered.');
       }
     } else {
-      // Request SMS permission
-      var status = await Permission.sms.status;
-      if (!status.isGranted) {
-        status = await Permission.sms.request();
-      }
+      // Create the SMS URI
+      final Uri smsUri = Uri(
+        scheme: 'sms',
+        path: formattedPhoneNumber,
+        queryParameters: {'body': message},
+      );
 
-      if (status.isGranted) {
-        final Uri smsUri = Uri(
-          scheme: 'sms',
-          path: phoneNumber,
-          queryParameters: {'body': message},
-        );
-
-        if (await canLaunchUrl(smsUri)) {
-          await launchUrl(smsUri, mode: LaunchMode.externalApplication);
-          print('SMS sent to $phoneNumber');
-        } else {
-          print('Could not launch SMS app');
-        }
+      // Launch SMS app
+      if (await canLaunchUrl(smsUri)) {
+        await launchUrl(smsUri, mode: LaunchMode.externalApplication);
+        print('SMS intent launched to $phoneNumber');
       } else {
-        print('SMS permission denied');
+        print('Could not launch SMS app.');
       }
     }
   } catch (error) {

@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
@@ -843,25 +840,26 @@ class CollectionDB {
   }
 
   static Future<Map<String, double>> getCollectionAndGivenByDate(
-      DateTime date) async {
+      String date) async {
     final db = await DatabaseHelper.getDatabase();
-    final dateString = DateFormat('dd-MM-yyyy').format(date);
 
-    final result = await db.rawQuery('''
+    // Query the database for the given date
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
     SELECT 
       SUM(CASE WHEN DrAmt IS NOT NULL THEN DrAmt ELSE 0 END) AS totalDrAmt,
       SUM(CASE WHEN CrAmt IS NOT NULL THEN CrAmt ELSE 0 END) AS totalCrAmt
     FROM Collection
     WHERE Date = ?
-  ''', [dateString]);
+  ''', [date]);
 
-    final totalDrAmt = (result[0]['totalDrAmt'] ?? 0.0) as double;
-    final totalCrAmt = (result[0]['totalCrAmt'] ?? 0.0) as double;
-
-    return {
-      'totalDrAmt': totalDrAmt,
-      'totalCrAmt': totalCrAmt,
-    };
+    if (result.isNotEmpty) {
+      return {
+        'totalDrAmt': result[0]['totalDrAmt'] ?? 0.0,
+        'totalCrAmt': result[0]['totalCrAmt'] ?? 0.0,
+      };
+    } else {
+      return {'totalDrAmt': 0.0, 'totalCrAmt': 0.0};
+    }
   }
 
   static Future<void> deleteEntriesByLenId(int lenId) async {
@@ -908,8 +906,8 @@ class CollectionDB {
     final db = await DatabaseHelper.getDatabase();
 
     // Format the DateTime objects as dd-MM-yyyy strings
-    final String startDateStr = DateFormat('dd-MM-yyyy').format(startDate);
-    final String endDateStr = DateFormat('dd-MM-yyyy').format(endDate);
+    final String startDateStr = DateFormat('yyyy-MM-dd').format(startDate);
+    final String endDateStr = DateFormat('yyyy-MM-dd').format(endDate);
 
     // Query the database
     final List<Map<String, dynamic>> result = await db.query(

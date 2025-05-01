@@ -58,6 +58,9 @@ dependencies:
   archive: ^3.6.1
   url_launcher: ^6.3.1
   carousel_slider: ^5.0.0
+  firebase_storage: ^12.4.4
+  firebase_core: ^3.13.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.13
   
   
   
@@ -94,6 +97,7 @@ flutter:
     - assets/icons.png
     - assets/intro_image.png
     - assets/fonts/Roboto-Regular.ttf
+    - assets/google-services.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -49,7 +49,8 @@ class LendingCombinedDetailsScreen extends ConsumerWidget {
             'LenId': lentid,
             'amtgiven': amtGiven,
             'profit': profit,
-            'Lentdate': _lentDateController.text,
+            'Lentdate': DateFormat('yyyy-MM-dd').format(
+                DateFormat('dd-MM-yyyy').parse(_lentDateController.text)),
             'duedays': int.parse(_dueDaysController.text),
             'status': 'active',
           };
@@ -57,7 +58,8 @@ class LendingCombinedDetailsScreen extends ConsumerWidget {
           await CollectionDB.updateCollection(
             cid: cid,
             lenId: lentid,
-            date: _lentDateController.text,
+            date: DateFormat('yyyy-MM-dd').format(
+                DateFormat('dd-MM-yyyy').parse(_lentDateController.text)),
             crAmt: total,
             drAmt: 0.0,
           );
@@ -159,7 +161,7 @@ class LendingCombinedDetailsScreen extends ConsumerWidget {
     _profitController.text = preladedprofit.toString();
     if (preladedlendate.isNotEmpty) {
       _lentDateController.text = DateFormat('dd-MM-yyyy')
-          .format(DateFormat('dd-MM-yyyy').parse(preladedlendate));
+          .format(DateFormat('yyyy-MM-dd').parse(preladedlendate));
     }
     _dueDaysController.text = preladedduedays.toString();
 

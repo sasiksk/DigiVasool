@@ -74,7 +74,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
         await CollectionScreen.updateAmtRecieved(
             _selectedLineName!, collectedAmt);
         await CollectionScreen.insertCollection(
-            lenId, collectedAmt, DateFormat('dd-MM-yyyy').format(selectedDate));
+            lenId, collectedAmt, DateFormat('yyyy-MM-dd').format(selectedDate));
       }
     }
 
@@ -193,7 +193,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                         setState(() {
                           selectedDate = pickedDate;
                           _dateController.text =
-                              DateFormat('dd-MM-yyyy').format(pickedDate);
+                              DateFormat('yyyy-MM-dd').format(pickedDate);
                         });
                       }
                     },

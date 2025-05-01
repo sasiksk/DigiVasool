@@ -142,12 +142,19 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                         return const Center(child: Text('No data found.'));
                       } else {
                         final data = snapshot.data!;
-                        final daysover = data['lentdate'] != null &&
-                                data['lentdate'].isNotEmpty
+                        final convdate =
+                            DateFormat('mm-dd-yyyy').parse(data['lentdate']);
+
+                        final daysover = data['lentdate'].isNotEmpty
                             ? DateTime.now()
-                                .difference(DateFormat('dd-MM-yyyy')
+                                .difference(DateFormat('yyyy-MM-dd')
                                     .parse(data['lentdate']))
                                 .inDays
+                            : null;
+
+                        final formattedDaysover = daysover != null
+                            ? DateFormat('dd-MM-yyyy').format(DateTime.now()
+                                .subtract(Duration(days: daysover)))
                             : null;
                         final daysrem =
                             data['duedays'] != null && daysover != null
@@ -156,7 +163,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
 
                         final duedate = data['lentdate'] != null &&
                                 data['lentdate'].isNotEmpty
-                            ? DateFormat('dd-MM-yyyy')
+                            ? DateFormat('yyyy-MM-dd')
                                 .parse(data['lentdate'])
                                 .add(Duration(days: data['duedays']))
                                 .toString()
@@ -448,31 +455,14 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
 
           const Padding(
             padding: EdgeInsets.only(right: 25),
-            child: Row(
-              children: [
-                // Centered "Cr"
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      '                                      You Gave',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+            child: Center(
+              child: Text(
+                'Entry Details',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-
-                Text(
-                  'You Got',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
           Expanded(
@@ -486,33 +476,81 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No entries found.'));
                 } else {
-                  // Create a modifiable copy of the entries list
                   final List<Map<String, dynamic>> entries =
                       List.from(snapshot.data!);
 
                   // Sort by date (latest first)
-                  entries.sort((a, b) => DateFormat('dd-MM-yyyy')
+                  entries.sort((a, b) => DateFormat('yyyy-MM-dd')
                       .parse(b['Date'])
-                      .compareTo(DateFormat('dd-MM-yyyy').parse(a['Date'])));
+                      .compareTo(DateFormat('yyyy-MM-dd').parse(a['Date'])));
 
                   return ListView.separated(
                     itemCount: entries.length,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     itemBuilder: (context, index) {
                       final entry = entries[index];
-                      final date = entry['Date'];
+                      final rawDate = entry['Date'];
                       final crAmt = entry['CrAmt'] ?? 0.0;
                       final drAmt = entry['DrAmt'] ?? 0.0;
                       final cid = entry['cid'];
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GestureDetector(
+                      // Format date: "21 Mar 2025"
+                      final formattedDate = DateFormat('dd MMM yyyy')
+                          .format(DateFormat('yyyy-MM-dd').parse(rawDate));
+
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 4),
+                        color: Colors.white,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
+                          leading: CircleAvatar(
+                            backgroundColor: crAmt > 0
+                                ? Colors.red.shade700
+                                : Colors.green.shade700,
+                            radius: 18,
+                            child: Icon(
+                              crAmt > 0
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          title: Text(
+                            formattedDate,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            crAmt > 0
+                                ? "Credit: ₹${crAmt.toStringAsFixed(2)}"
+                                : "Debit: ₹${drAmt.toStringAsFixed(2)}",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: crAmt > 0
+                                  ? Colors.red.shade700
+                                  : Colors.green.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right,
+                              color: Colors.grey, size: 18),
                           onTap: () async {
+                            print(rawDate);
                             if (drAmt > 0) {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => CollectionScreen(
-                                    preloadedDate: date,
+                                    preloadedDate: rawDate,
                                     preloadedAmtCollected: drAmt,
                                     preloadedCid: cid,
                                   ),
@@ -523,6 +561,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                               final partyDetails =
                                   await dbLending.getPartyDetails(lenId);
                               amt = 0;
+                              print(partyDetails);
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) =>
@@ -541,16 +580,11 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                               );
                             }
                           },
-                          child: TransactionCard(
-                            dateTime: date,
-                            balance: crAmt,
-                            cramount: crAmt,
-                            dramount: drAmt,
-                          ),
                         ),
                       );
                     },
-                    separatorBuilder: (context, index) => const Divider(),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 4),
                   );
                 }
               },

@@ -45,9 +45,9 @@ class _EmptyCard1State extends State<EmptyCard1> {
               borderRadius: BorderRadius.circular(15),
               gradient: const LinearGradient(
                 colors: [
-                  Color.fromARGB(255, 235, 231, 208),
-                  Color.fromARGB(255, 227, 228, 241),
-                  Color.fromARGB(255, 243, 231, 245)
+                  Color(0xFFEAE9D9), // Soft Cream
+                  Color(0xFFD6DAF0), // Light Lavender
+                  Color(0xFFC2D9F7), // Gentle Sky Blue
                 ], // Gradient background
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

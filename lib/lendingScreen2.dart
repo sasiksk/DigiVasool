@@ -32,7 +32,8 @@ class LendingCombinedDetailsScreen2 extends ConsumerWidget {
           'LenId': lentid,
           'amtgiven': amtGiven,
           'profit': profit,
-          'Lentdate': _lentDateController.text,
+          'Lentdate': DateFormat('yyyy-MM-dd')
+              .format(DateFormat('dd-MM-yyyy').parse(_lentDateController.text)),
           'duedays': int.parse(_dueDaysController.text),
           'amtcollected': 0.0,
           'status': 'active',

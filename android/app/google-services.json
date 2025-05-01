@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "994574056397",
+    "project_id": "skfinance-a8744",
+    "storage_bucket": "skfinance-a8744.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994574056397:android:f671913217fd630d1ee284",
+        "android_client_info": {
+          "package_name": "com.DigiThinkers.DigiVasool"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDW3KJCrtLGyPKEowsa5iMW4HkpU2u66xE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

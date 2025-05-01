@@ -41,7 +41,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> loadCollectionAndGivenByDate(DateTime date) async {
-    final result = await CollectionDB.getCollectionAndGivenByDate(date);
+    String queryDate = DateFormat('yyyy-MM-dd').format(date);
+    print('Query Date: $queryDate');
+    final result = await CollectionDB.getCollectionAndGivenByDate(queryDate);
+    print('Result: $result');
     setState(() {
       todaysTotalDrAmt = result['totalDrAmt'] ?? 0.0;
       todaysTotalCrAmt = result['totalCrAmt'] ?? 0.0;
@@ -234,16 +237,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const Text(
                           'Total:',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w900,
+                            color: Colors.deepPurpleAccent,
                           ),
                         ),
-                        Text(
-                          '₹${(totalProfit + totalAmtGiven).toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                          ),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(
+                              begin: 0, end: totalProfit + totalAmtGiven),
+                          duration: const Duration(milliseconds: 300),
+                          builder: (context, value, child) {
+                            final formattedValue = NumberFormat.currency(
+                              decimalDigits: 2,
+                              symbol: '₹',
+                              locale: 'en_IN',
+                            ).format(value);
+                            return Text(
+                              formattedValue,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.purpleAccent,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -253,16 +270,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         const Text(
                           'Received:',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w900,
+                            color: Colors.deepPurpleAccent,
                           ),
                         ),
-                        Text(
-                          '₹${totalAmtRecieved.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                          ),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0, end: totalAmtRecieved),
+                          duration: const Duration(milliseconds: 300),
+                          builder: (context, value, child) {
+                            final formattedValue = NumberFormat.currency(
+                              decimalDigits: 2,
+                              symbol: '₹',
+                              locale: 'en_IN',
+                            ).format(value);
+                            return Text(
+                              formattedValue,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.purpleAccent,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -276,16 +306,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const Text(
                         'You will get:',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
+                          color: Colors.deepPurpleAccent,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      Text(
-                        '₹${(totalAmtGiven - totalAmtRecieved + totalProfit).toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                        ),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween<double>(
+                            begin: 0,
+                            end:
+                                totalAmtGiven - totalAmtRecieved + totalProfit),
+                        duration: const Duration(milliseconds: 300),
+                        builder: (context, value, child) {
+                          final formattedValue = NumberFormat.currency(
+                            decimalDigits: 2,
+                            symbol: '₹',
+                            locale: 'en_IN',
+                          ).format(value);
+                          return Text(
+                            formattedValue,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.purpleAccent,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -330,12 +376,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                             decoration: const InputDecoration(
                               labelText: 'Pick Date',
+
                               hintText: 'Select a date',
                               border: OutlineInputBorder(),
                               suffixIcon: Icon(Icons.calendar_today,
                                   size: 20), // Smaller icon
-                              labelStyle:
-                                  TextStyle(fontSize: 14), // Small label
+                              labelStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black), // Small label
                               hintStyle:
                                   TextStyle(fontSize: 16), // Small hint text
                             ),
@@ -454,42 +502,66 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     amtGiven + profit - expense - amtRecieved;
 
                 return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Colors.blueAccent,
-                          Colors.blue,
-                          Colors.lightBlueAccent
-                        ], // Gradient background
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        lineName,
-                        style: _textStyle(14, FontWeight.w600, Colors.white),
-                      ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 6.0),
+                  child: Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(20),
+                    shadowColor: Colors.black26,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
                       onTap: () => handleLineSelected(lineName),
-                      trailing: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Bal : ₹${calculatedValue.toStringAsFixed(2)}',
-                              style:
-                                  _textStyle(14, FontWeight.w600, Colors.white),
-                            ),
-                            _buildPopupMenuButton(
-                                context, lineName, lineDetails),
-                          ],
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF2196F3),
+                              Color(0xFF42A5F5),
+                              Color(0xFF81D4FA),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  lineName,
+                                  style: _textStyle(
+                                      16, FontWeight.w600, Colors.white),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              TweenAnimationBuilder<double>(
+                                tween: Tween<double>(
+                                    begin: 0, end: calculatedValue),
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeOut,
+                                builder: (context, value, child) {
+                                  return Text(
+                                    'Bal : ₹${NumberFormat.currency(
+                                      decimalDigits: 2,
+                                      symbol: '',
+                                      locale: 'en_IN',
+                                    ).format(value)}',
+                                    style: _textStyle(
+                                      15,
+                                      FontWeight.bold,
+                                      const Color.fromARGB(255, 255, 255, 160),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              _buildPopupMenuButton(
+                                  context, lineName, lineDetails),
+                            ],
+                          ),
                         ),
                       ),
                     ),

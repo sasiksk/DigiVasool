@@ -368,146 +368,230 @@ class _LineDetailScreenState extends ConsumerState<LineDetailScreen> {
             child: ValueListenableBuilder<List<String>>(
               valueListenable: filteredPartyNamesNotifier,
               builder: (context, filteredPartyNames, _) {
-                return ListView.separated(
-                  itemCount: filteredPartyNames.length == 0
-                      ? 1
-                      : filteredPartyNames.length,
-                  itemBuilder: (context, index) {
-                    if (filteredPartyNames.length == 0) {
-                      return const Center(
-                        child: Text(
-                          'No Parties found',
+                if (filteredPartyNames.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            size: 50, color: Colors.grey),
+                        SizedBox(height: 10),
+                        Text(
+                          'No Parties Found',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.grey,
                           ),
                         ),
-                      );
-                    } else {
-                      final partyName = filteredPartyNames[index];
-                      final details = partyDetailsMap[partyName] ?? {};
-                      final amtGiven = details['amtgiven'] ?? 0.0;
-                      final profit = details['profit'] ?? 0.0;
-                      final amtCollected = details['amtcollected'] ?? 0.0;
-                      final calculatedValue = amtGiven + profit - amtCollected;
+                      ],
+                    ),
+                  );
+                }
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 4),
+                return ListView.separated(
+                  itemCount: filteredPartyNames.length,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  itemBuilder: (context, index) {
+                    final partyName = filteredPartyNames[index];
+                    final details = partyDetailsMap[partyName] ?? {};
+                    final amtGiven = details['amtgiven'] ?? 0.0;
+                    final profit = details['profit'] ?? 0.0;
+                    final amtCollected = details['amtcollected'] ?? 0.0;
+                    final calculatedValue = amtGiven + profit - amtCollected;
+
+                    return GestureDetector(
+                      onTap: () => handleLineSelected(partyName),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 6),
                         child: Container(
-                          height: 60,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 18),
                           decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
                             gradient: LinearGradient(
                               colors: [
-                                Colors.blue[900]!,
-                                Colors.blue[400]!,
+                                Colors.blue.shade900,
+                                Colors.blue.shade500
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 6,
+                                offset: const Offset(2, 4),
+                              ),
+                            ],
                           ),
-                          child: ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  partyName,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    fontFamily: GoogleFonts.tinos().fontFamily,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Party Name with Icon
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor:
+                                        Colors.white.withOpacity(0.2),
+                                    radius: 20,
+                                    child: const Icon(Icons.account_circle,
+                                        color: Colors.white),
                                   ),
-                                ),
-                                Text(
-                                  'Bal: ₹${calculatedValue.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                    fontFamily: GoogleFonts.tinos().fontFamily,
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    partyName,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontFamily:
+                                          GoogleFonts.tinos().fontFamily,
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            onTap: () => handleLineSelected(partyName),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (String value) async {
-                                if (value == 'Update') {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PartyScreen(
-                                        partyName: partyName,
-                                        // Pass other necessary details if needed
+                                ],
+                              ),
+
+                              // Balance Display (Aligned Right)
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Container(
+                                    width:
+                                        120, // Fixed width for uniform balance display
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '₹${calculatedValue.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+\.)'), (match) => '${match[1]},')}',
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontFamily:
+                                            GoogleFonts.tinos().fontFamily,
                                       ),
                                     ),
-                                  );
-                                } else if (value == 'Delete') {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Confirm Deletion'),
-                                        content: const Text(
-                                            'Are you sure you want to delete this party and related collections?'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('Cancel'),
-                                            onPressed: () {
-                                              if (mounted) {
-                                                Navigator.of(context)
-                                                    .pop(); // Dismiss the dialog
-                                              }
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: const Text('OK'),
-                                            onPressed: () async {
-                                              final parentContext =
-                                                  context; // Save the parent context
-                                              Navigator.of(parentContext)
-                                                  .pop(); // Dismiss the dialog
-                                              final lenId =
-                                                  await DatabaseHelper.getLenId(
-                                                      lineName!, partyName);
-                                              if (lenId != null) {
-                                                await dbLending
-                                                    .deleteLendingAndCollections(
-                                                        lenId, lineName);
+                                  ),
+                                ),
+                              ),
 
-                                                if (mounted) {
-                                                  setState(() {
-                                                    loadPartyNames(); // Refresh the list after deletion
-                                                  });
-                                                }
-                                              }
-                                            },
+                              // Popup Menu Button
+                              PopupMenuButton<String>(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                color: Colors.white,
+                                icon: const Icon(Icons.more_vert,
+                                    color: Colors.white),
+                                onSelected: (String value) async {
+                                  if (value == 'Update') {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PartyScreen(partyName: partyName),
+                                      ),
+                                    );
+                                  } else if (value == 'Delete') {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
                                           ),
+                                          title: const Text('Confirm Deletion'),
+                                          content: const Text(
+                                            'Are you sure you want to delete this party and related collections?',
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('Cancel',
+                                                  style: TextStyle(
+                                                      color: Colors.grey)),
+                                              onPressed: () {
+                                                if (mounted) {
+                                                  Navigator.of(context).pop();
+                                                }
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text('OK',
+                                                  style: TextStyle(
+                                                      color: Colors.red)),
+                                              onPressed: () async {
+                                                final parentContext = context;
+                                                Navigator.of(parentContext)
+                                                    .pop();
+                                                final lenId =
+                                                    await DatabaseHelper
+                                                        .getLenId(lineName!,
+                                                            partyName);
+                                                if (lenId != null) {
+                                                  await dbLending
+                                                      .deleteLendingAndCollections(
+                                                          lenId, lineName);
+                                                  if (mounted) {
+                                                    setState(() {
+                                                      loadPartyNames();
+                                                    });
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    const PopupMenuItem<String>(
+                                      value: 'Update',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit, color: Colors.blue),
+                                          SizedBox(width: 8),
+                                          Text('Update'),
                                         ],
-                                      );
-                                    },
-                                  );
-                                }
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return {'Update', 'Delete'}
-                                    .map((String choice) {
-                                  return PopupMenuItem<String>(
-                                    value: choice,
-                                    child: Text(choice),
-                                  );
-                                }).toList();
-                              },
-                            ),
+                                      ),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'Delete',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete, color: Colors.red),
+                                          SizedBox(width: 8),
+                                          Text('Delete'),
+                                        ],
+                                      ),
+                                    ),
+                                  ];
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    }
+                      ),
+                    );
                   },
-                  separatorBuilder: (context, index) => const Divider(),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 0.5),
                 );
               },
             ),

@@ -1,5 +1,7 @@
 import 'package:DigiVasool/Screens/TableDetailsScreen.dart';
 import 'package:DigiVasool/Screens/bulk_insert_screen.dart';
+import 'package:DigiVasool/firebase_backup_screen.dart';
+import 'package:DigiVasool/google_drive_backup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:googleapis/authorizedbuyersmarketplace/v1.dart';
@@ -81,10 +83,38 @@ Widget buildDrawer(BuildContext context) {
             //navigate to home screen
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const DownloadDBScreen()),
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const DownloadDBScreen()), //FirebaseBackupScreen()),
             );
           },
         ),
+        ListTile(
+          leading: const Icon(Icons.backup),
+          title: const Text('Back Up-Firebase'),
+          onTap: () {
+            //navigate to home screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const /*DownloadDBScreen*/ FirebaseBackupScreen()),
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.backup),
+          title: const Text('Back Up-Firebase'),
+          onTap: () {
+            //navigate to home screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => GoogleDriveBackupScreen()),
+            );
+          },
+        ),
+
         ListTile(
           leading: const Icon(Icons.restore),
           title: const Text('Restore'),

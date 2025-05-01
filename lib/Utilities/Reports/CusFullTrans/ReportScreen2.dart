@@ -29,6 +29,29 @@ class _ReportScreen2State extends State<ReportScreen2> {
       DateTime endDate =
           DateFormat('dd-MM-yyyy').parse(_endDateController.text);
 
+      // Validate the dates
+      if (endDate.isBefore(startDate)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('End date cannot be before start date')),
+        );
+        return;
+      }
+
+      if (startDate.isAfter(DateTime.now()) ||
+          endDate.isAfter(DateTime.now())) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Dates cannot go beyond today')),
+        );
+        return;
+      }
+
+      // Convert to yyyy-MM-dd format
+      String formattedStartDate = DateFormat('yyyy-MM-dd').format(startDate);
+      String formattedEndDate = DateFormat('yyyy-MM-dd').format(endDate);
+
+      startDate = DateFormat('yyyy-MM-dd').parse(formattedStartDate);
+      endDate = DateFormat('yyyy-MM-dd').parse(formattedEndDate);
+
       // Fetch entries from the database
       List<Map<String, dynamic>> entries =
           await CollectionDB.getEntriesBetweenDates(startDate, endDate);
@@ -163,59 +186,69 @@ class _ReportScreen2State extends State<ReportScreen2> {
 
             // Entries List
             Expanded(
-              child: ListView.separated(
-                itemCount: _entries.length,
-                itemBuilder: (context, index) {
-                  var entry = _entries[index];
+              child: _entries.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No entries found',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: _entries.length,
+                      itemBuilder: (context, index) {
+                        var entry = _entries[index];
 
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              // Format the date as dd-MM-yyyy
-                              DateFormat('dd-MM-yyyy').format(
-                                DateFormat('dd-MM-yyyy').parse(entry.date),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 16, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    // Format the date as dd-MM-yyyy
+                                    DateFormat('dd-MM-yy').format(
+                                      DateFormat('yyyy-MM-dd')
+                                          .parse(entry.date),
+                                    ),
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                  Text(
+                                    entry.partyName,
+                                    style: TextStyle(
+                                        color: Colors.deepPurple.shade900,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                            Text(
-                              entry.partyName,
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              entry.crAmt != 0.0 ? '₹${entry.crAmt}' : '',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
-                              entry.drAmt != 0.0 ? '₹${entry.drAmt}' : '',
-                              style: const TextStyle(color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Column(
+                                children: [
+                                  Text(
+                                    entry.crAmt != 0.0 ? '₹${entry.crAmt}' : '',
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    entry.drAmt != 0.0 ? '₹${entry.drAmt}' : '',
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) => const Divider(),
                     ),
-                  );
-                },
-                separatorBuilder: (context, index) => const Divider(),
-              ),
             ),
 
             // Download Button in SafeArea

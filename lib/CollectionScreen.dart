@@ -23,7 +23,8 @@ class CollectionScreen extends ConsumerWidget {
       this.preloadedAmtCollected,
       this.preloadedCid}) {
     if (preloadedDate != null) {
-      _dateController.text = preloadedDate;
+      _dateController.text = DateFormat('dd-MM-yyyy')
+          .format(DateFormat('yyyy-MM-dd').parse(preloadedDate));
     } else {
       _dateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
     }
@@ -73,10 +74,11 @@ class CollectionScreen extends ConsumerWidget {
       [String? date]) async {
     final int cid = await getNextCid();
     final db = await DatabaseHelper.getDatabase();
+    print(date);
     await db.insert('Collection', {
       'cid': cid,
       'LenId': lenId,
-      'Date': date ?? DateFormat('dd-MM-yyyy').format(DateTime.now()),
+      'Date': date ?? DateFormat('yyyy-MM-dd').format(DateTime.now()),
       'CrAmt': 0.0,
       'DrAmt': collectedAmt,
     });
@@ -92,288 +94,311 @@ class CollectionScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(partyName ?? "Add Collection"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomDatePicker(
-                controller: _dateController,
-                labelText: "Date of Payment",
-                hintText: "Pick the date of payment",
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now(),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _amtCollectedController,
-                decoration: const InputDecoration(
-                  labelText: "Amount Collected",
-                  hintText: "Enter the amount collected",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the amount collected';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() == true) {
-                        final date = _dateController.text;
-                        final collectedAmt =
-                            double.parse(_amtCollectedController.text);
-                        final lenStatus =
-                            await dbLending.getStatusByLenId(lenid!);
-                        if (lenid != null && lineName != null) {
-                          if (lenStatus == 'active' || preloadedCid != null) {
-                            if (preloadedCid != null) {
-                              // Fetch the current amtCollected and dueAmt from Lending table
-                              final lendingData =
-                                  await dbLending.fetchLendingData(lenid);
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomDatePicker(
+                      controller: _dateController,
+                      labelText: "Date of Payment",
+                      hintText: "Pick the date of payment",
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _amtCollectedController,
+                      decoration: const InputDecoration(
+                        labelText: "Amount Collected",
+                        hintText: "Enter the amount collected",
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the amount collected';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() == true) {
+                              final date = _dateController.text;
+                              final collectedAmt =
+                                  double.parse(_amtCollectedController.text);
+                              final lenStatus =
+                                  await dbLending.getStatusByLenId(lenid!);
+                              if (lenid != null && lineName != null) {
+                                if (lenStatus == 'active' ||
+                                    preloadedCid != null) {
+                                  if (preloadedCid != null) {
+                                    // Fetch the current amtCollected and dueAmt from Lending table
+                                    final lendingData =
+                                        await dbLending.fetchLendingData(lenid);
 
-                              final double currentAmtCollected =
-                                  lendingData['amtcollected'];
-                              final double currentgivenamt =
-                                  lendingData['amtgiven'] +
-                                      (lendingData['profit']);
+                                    final double currentAmtCollected =
+                                        lendingData['amtcollected'];
+                                    final double currentgivenamt =
+                                        lendingData['amtgiven'] +
+                                            (lendingData['profit']);
 
-                              final int sms = lendingData['sms'];
-                              final String pno = lendingData['PartyPhnone'];
-                              // Calculate the new amtCollected and dueAmt
-                              final double newAmtCollected =
-                                  currentAmtCollected +
-                                      collectedAmt -
-                                      preloadedAmtCollected!;
+                                    final int sms = lendingData['sms'];
+                                    final String pno =
+                                        lendingData['PartyPhnone'] ?? 'Unknown';
+                                    // Calculate the new amtCollected and dueAmt
+                                    final double newAmtCollected =
+                                        currentAmtCollected +
+                                            collectedAmt -
+                                            preloadedAmtCollected!;
 
-                              if (currentgivenamt >= newAmtCollected) {
-                                print(
-                                    'NEW COLLECTED AMT EXCEEDING THE GIVEN AMT ');
-                                final String status =
-                                    currentgivenamt - newAmtCollected == 0
-                                        ? 'passive'
-                                        : 'active';
-                                print(status);
+                                    if (currentgivenamt >= newAmtCollected) {
+                                      print(
+                                          'NEW COLLECTED AMT EXCEEDING THE GIVEN AMT ');
+                                      final String status =
+                                          currentgivenamt - newAmtCollected == 0
+                                              ? 'passive'
+                                              : 'active';
+                                      print(status);
 
-                                final amtRecieved_Line =
-                                    await dbline.fetchAmtRecieved(lineName);
-                                final newamtrecived = amtRecieved_Line +
-                                    collectedAmt -
-                                    preloadedAmtCollected!;
-                                await dbline.updateLine(
-                                    lineName: lineName,
-                                    updatedValues: {
-                                      'Amtrecieved': newamtrecived
-                                    });
+                                      final amtRecieved_Line = await dbline
+                                          .fetchAmtRecieved(lineName);
+                                      final newamtrecived = amtRecieved_Line +
+                                          collectedAmt -
+                                          preloadedAmtCollected!;
+                                      await dbline.updateLine(
+                                          lineName: lineName,
+                                          updatedValues: {
+                                            'Amtrecieved': newamtrecived
+                                          });
 
-                                await dbLending.updateLendingAmounts(
-                                    lenId: lenid,
-                                    newAmtCollected: newAmtCollected,
-                                    status: status);
+                                      await dbLending.updateLendingAmounts(
+                                          lenId: lenid,
+                                          newAmtCollected: newAmtCollected,
+                                          status: status);
 
-                                //newDueAmt: newDueAmt);
-                                // Update existing record in Collection table
-                                await CollectionDB.updateCollection(
-                                  cid: preloadedCid!,
-                                  lenId: lenid,
-                                  date: date,
-                                  crAmt: 0.0,
-                                  drAmt: collectedAmt,
-                                );
-                              } else {
-                                // filepath: /path/to/CollectionScreen.dart
-                                Future.delayed(Duration.zero, () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Error"),
-                                        content: const Text(
-                                            'Amount exceeds original. Can\'t Update.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const PartyDetailScreen(),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text("OK"),
-                                          ),
-                                        ],
+                                      //newDueAmt: newDueAmt);
+                                      // Update existing record in Collection table
+                                      await CollectionDB.updateCollection(
+                                        cid: preloadedCid!,
+                                        lenId: lenid,
+                                        date: DateFormat('yyyy-MM-dd').format(
+                                            DateFormat('dd-MM-yyyy')
+                                                .parse(date)),
+                                        crAmt: 0.0,
+                                        drAmt: collectedAmt,
                                       );
-                                    },
+                                    } else {
+                                      // filepath: /path/to/CollectionScreen.dart
+                                      Future.delayed(Duration.zero, () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: const Text("Error"),
+                                              content: const Text(
+                                                  'Amount exceeds original. Can\'t Update.'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const PartyDetailScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: const Text("OK"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      });
+                                    }
+
+                                    final SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+                                    final financeName =
+                                        prefs.getString('financeName') ?? '';
+                                    await sendSms(pno,
+                                        'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
+                                  }
+                                  // Insert new record
+                                  else {
+                                    final lendingData =
+                                        await dbLending.fetchLendingData(lenid);
+
+                                    final double currentAmtCollected =
+                                        lendingData['amtcollected'];
+                                    final double currentgivenamt =
+                                        lendingData['amtgiven'] +
+                                            (lendingData['profit']);
+                                    final int sms = lendingData['sms'];
+                                    final String pno =
+                                        lendingData['PartyPhnone'] ?? 'Unknown';
+
+                                    // Calculate the new amtCollected and dueAmt
+                                    final double newAmtCollected =
+                                        currentAmtCollected + collectedAmt;
+                                    final double bal =
+                                        currentgivenamt - newAmtCollected;
+
+                                    if (currentgivenamt >= newAmtCollected) {
+                                      final cid = await getNextCid();
+                                      await CollectionDB.insertCollection(
+                                        cid: cid,
+                                        lenId: lenid,
+                                        date: DateFormat('yyyy-MM-dd').format(
+                                            DateFormat('dd-MM-yyyy')
+                                                .parse(date)),
+                                        crAmt: 0.0,
+                                        drAmt: collectedAmt,
+                                      );
+
+                                      await updateLendingData(
+                                          lenid, collectedAmt);
+                                      await updateAmtRecieved(
+                                          lineName, collectedAmt);
+
+                                      if (sms == 1 && pno != 'Unknown') {
+                                        final SharedPreferences prefs =
+                                            await SharedPreferences
+                                                .getInstance();
+                                        final financeName =
+                                            prefs.getString('financeName') ??
+                                                '';
+                                        await sendSms(pno,
+                                            'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
+                                      }
+                                    } else {
+                                      Future.delayed(Duration.zero, () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: const Text("Error"),
+                                              content: const Text(
+                                                  'Amount exceeds original. Can\'t Update.'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const PartyDetailScreen(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: const Text("OK"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      });
+                                    }
+                                  }
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Form Submitted')),
                                   );
-                                });
-                              }
-
-                              final SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              final financeName =
-                                  prefs.getString('financeName') ?? '';
-                              await sendSms(pno,
-                                  'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
-                            }
-                            // Insert new record
-                            else {
-                              final lendingData =
-                                  await dbLending.fetchLendingData(lenid);
-
-                              final double currentAmtCollected =
-                                  lendingData['amtcollected'];
-                              final double currentgivenamt =
-                                  lendingData['amtgiven'] +
-                                      (lendingData['profit']);
-                              final int sms = lendingData['sms'];
-                              final String pno = lendingData['PartyPhnone'];
-
-                              // Calculate the new amtCollected and dueAmt
-                              final double newAmtCollected =
-                                  currentAmtCollected + collectedAmt;
-                              final double bal =
-                                  currentgivenamt - newAmtCollected;
-
-                              if (currentgivenamt >= newAmtCollected) {
-                                final cid = await getNextCid();
-                                await CollectionDB.insertCollection(
-                                  cid: cid,
-                                  lenId: lenid,
-                                  date: date,
-                                  crAmt: 0.0,
-                                  drAmt: collectedAmt,
-                                );
-
-                                await updateLendingData(lenid, collectedAmt);
-                                await updateAmtRecieved(lineName, collectedAmt);
-
-                                if (sms == 1) {
-                                  final SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  final financeName =
-                                      prefs.getString('financeName') ?? '';
-                                  await sendSms(pno,
-                                      'Date: $date, Paid: $collectedAmt, Bal: ${currentgivenamt - newAmtCollected}. Thank You, $financeName');
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const PartyDetailScreen(),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Cannot lend amount to passive state party')),
+                                  );
                                 }
                               } else {
-                                Future.delayed(Duration.zero, () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Error"),
-                                        content: const Text(
-                                            'Amount exceeds original. Can\'t Update.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const PartyDetailScreen(),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text("OK"),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Error: LenId or LineName is null')),
+                                );
                               }
                             }
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Form Submitted')),
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PartyDetailScreen(),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text(
-                                      'Cannot lend amount to passive state party')),
-                            );
-                          }
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('Error: LenId or LineName is null')),
-                          );
-                        }
-                      }
-                    },
-                    child: Text(preloadedCid != null ? "Update" : "Submit"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (preloadedCid != null) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Delete Confirmation"),
-                              content: const Text(
-                                  "Are you sure you want to delete this entry?"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    await PartyDetailScreen.deleteEntry(
-                                      context,
-                                      preloadedCid!,
-                                      lineName!,
-                                      preloadedAmtCollected!,
-                                      lenid!,
-                                      partyName!,
-                                    );
-                                  },
-                                  child: const Text("Delete"),
-                                ),
-                              ],
-                            );
                           },
-                        );
-                      } else {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PartyDetailScreen(),
-                          ),
-                        );
-                      }
-                    },
-                    child: Text(preloadedCid != null ? "Delete" : "Cancel"),
-                  ),
-                ],
+                          child:
+                              Text(preloadedCid != null ? "Update" : "Submit"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (preloadedCid != null) {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text("Delete Confirmation"),
+                                    content: const Text(
+                                        "Are you sure you want to delete this entry?"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.of(context).pop();
+                                          await PartyDetailScreen.deleteEntry(
+                                            context,
+                                            preloadedCid!,
+                                            lineName!,
+                                            preloadedAmtCollected!,
+                                            lenid!,
+                                            partyName!,
+                                          );
+                                        },
+                                        child: const Text("Delete"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } else {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PartyDetailScreen(),
+                                ),
+                              );
+                            }
+                          },
+                          child:
+                              Text(preloadedCid != null ? "Delete" : "Cancel"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
