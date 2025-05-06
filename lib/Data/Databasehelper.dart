@@ -329,6 +329,43 @@ class dbline {
 }
 
 class dbLending {
+  static Future<Map<String, dynamic>> getLendingDetails(int lenId) async {
+    final db = await DatabaseHelper.getDatabase();
+
+    // Query to fetch the required details
+    final List<Map<String, dynamic>> result = await db.query(
+      'Lending',
+      columns: [
+        'amtgiven',
+        'profit',
+        'amtcollected',
+        'duedays'
+      ], // Select required columns
+      where: 'LenId = ?',
+      whereArgs: [lenId],
+    );
+
+    if (result.isNotEmpty) {
+      final double amtGiven = result.first['amtgiven'] as double? ?? 0.0;
+      final double profit = result.first['profit'] as double? ?? 0.0;
+      final double amtCollected =
+          result.first['amtcollected'] as double? ?? 0.0;
+      final int dueDays = result.first['duedays'] as int? ?? 0;
+
+      return {
+        'totalAmtGivenWithProfit': amtGiven + profit, // amtGiven + profit
+        'amtCollected': amtCollected, // amtcollected
+        'dueDays': dueDays, // duedays
+      };
+    } else {
+      return {
+        'totalAmtGivenWithProfit': 0.0,
+        'amtCollected': 0.0,
+        'dueDays': 0,
+      };
+    }
+  }
+
   static Future<List<Map<String, dynamic>>?> getLendingDetailsByLineName(
       String lineName) async {
     final db = await DatabaseHelper.getDatabase();
@@ -823,6 +860,30 @@ class dbLending {
 }
 
 class CollectionDB {
+  static Future<List<Map<String, dynamic>>> getEntriesForCustomerBetweenDates(
+      int lenId, DateTime startDate, DateTime endDate) async {
+    final Database db = await DatabaseHelper.getDatabase();
+
+    final String startDateStr = DateFormat('yyyy-MM-dd').format(startDate);
+    final String endDateStr = DateFormat('yyyy-MM-dd').format(endDate);
+    // Query to fetch entries for the specific customer within the date range
+    final List<Map<String, dynamic>> result = await db.query('Collection',
+        where: 'LenId = ? AND Date BETWEEN ? AND ?',
+        whereArgs: [lenId, startDateStr, endDateStr],
+        orderBy: 'Date ASC');
+
+    return result;
+
+    /*final List<Map<String, dynamic>> result = await db.query(
+      'Transactions', // Replace with your table name
+      where: 'LenId = ? AND Date BETWEEN ? AND ?',
+      whereArgs: [lenId, startDate, endDate],
+      orderBy: 'Date ASC', // Sort by date in ascending order
+    );
+
+    return result;*/
+  }
+
   static Future<int> getLenIdForCid(int cid) async {
     final db = await DatabaseHelper.getDatabase();
     final result = await db.query(

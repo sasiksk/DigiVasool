@@ -1,8 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/CollectionScreen.dart';
+import 'package:DigiVasool/Screens/Main/CollectionScreen.dart';
 import 'package:intl/intl.dart';
 
 class BulkInsertScreen extends StatefulWidget {
@@ -20,7 +18,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
   List<bool> _isCheckedList = [];
   List<TextEditingController> _amountControllers = [];
   DateTime selectedDate = DateTime.now();
-  TextEditingController _dateController = TextEditingController(
+  final TextEditingController _dateController = TextEditingController(
     text: DateFormat('dd-MM-yyyy').format(DateTime.now()),
   );
   double totalAmount = 0.0;
@@ -126,7 +124,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
             ),
             const SizedBox(height: 16.0),
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Choose Your Line Name',
                 border: OutlineInputBorder(),
                 isDense: true, // Reduce height
@@ -139,7 +137,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                   value: lineName,
                   child: Text(
                     lineName,
-                    style: TextStyle(fontSize: 14), // Reduce font size
+                    style: const TextStyle(fontSize: 14), // Reduce font size
                   ),
                 );
               }).toList(),
@@ -180,7 +178,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                       suffixIcon: Icon(Icons.calendar_today,
                           size: 18), // Reduce icon size
                     ),
-                    style: TextStyle(fontSize: 14), // Reduce font size
+                    style: const TextStyle(fontSize: 14), // Reduce font size
                     readOnly: true,
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
@@ -223,7 +221,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             Expanded(
               child: SingleChildScrollView(
@@ -279,13 +277,13 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                           return DataRow(
                             cells: [
                               DataCell(Text(detail['PartyName'],
-                                  style: TextStyle(fontSize: 12))),
+                                  style: const TextStyle(fontSize: 12))),
                               DataCell(Text(balanceAmt.toStringAsFixed(2),
-                                  style: TextStyle(fontSize: 12))),
+                                  style: const TextStyle(fontSize: 12))),
                               DataCell(
                                 TextFormField(
                                   controller: _amountControllers[index],
-                                  style: TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 12),
                                   keyboardType: TextInputType.number,
                                   onTap: () {
                                     _amountControllers[index].clear();
@@ -319,19 +317,19 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                       )..add(
                           DataRow(
                             cells: [
-                              DataCell(Text('Total',
+                              const DataCell(Text('Total',
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold))),
-                              DataCell(Text('',
+                              const DataCell(Text('',
                                   style:
                                       TextStyle(fontSize: 12))), // Empty cell
                               DataCell(Text(totalAmount.toStringAsFixed(2),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.purple))),
-                              DataCell(Text('',
+                              const DataCell(Text('',
                                   style:
                                       TextStyle(fontSize: 12))), // Empty cell
                             ],

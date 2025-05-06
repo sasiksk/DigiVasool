@@ -343,7 +343,7 @@ class LendingCombinedDetailsScreen extends ConsumerWidget {
                         size: 24,
                       ),
                       label: Text(
-                        preloadedamtgiven > 0
+                        preloadedamtgiven >= 0
                             ? "Update Lending"
                             : "Submit Lending",
                         style: const TextStyle(

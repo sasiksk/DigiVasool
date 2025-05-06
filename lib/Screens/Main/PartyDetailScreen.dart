@@ -1,6 +1,8 @@
+import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
+import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/CollectionScreen.dart';
+import 'package:DigiVasool/Screens/Main/CollectionScreen.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
 import 'package:DigiVasool/Screens/Main/LendingScreen.dart';
 
@@ -58,8 +60,10 @@ class PartyDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
-  Widget _buildSummaryItem(String label, double amount, Color color) {
+  Widget _buildSummaryItem(String label, double amount, Color color,
+      {String? additionalInfo}) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           label,
@@ -78,6 +82,15 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        if (additionalInfo != null) // Display additional info in the next row
+          Text(
+            additionalInfo,
+            style: GoogleFonts.tinos(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w400,
+            ),
+          ),
       ],
     );
   }
@@ -424,71 +437,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
               ),
             ),
           ),
-          // i need a card with single row .which contains 3 icon buttons
-          // 1. party report 2. sms reminder  3. watsup reminder
-          Padding(
-              padding: const EdgeInsets.fromLTRB(15, 2, 25, 2),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                elevation: 2,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Party Report
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.picture_as_pdf,
-                              color: Colors.blue),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ViewReportsPage(),
-                              ),
-                            );
-                          },
-                        ),
-                        const Text('Report', style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                    // SMS Reminder
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.sms, color: Colors.blue),
-                          onPressed: () {
-                            // Add your logic here
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Coming Soon...'),
-                              ),
-                            );
-                          },
-                        ),
-                        const Text('SMS', style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                    // WhatsApp Reminder
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.telegram, color: Colors.blue),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Coming Soon...'),
-                              ),
-                            );
-                          },
-                        ),
-                        const Text('WhatsApp', style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
+
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -502,6 +451,9 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
               ),
             ),
           ),
+          // i need a card with single row .which contains 3 icon buttons
+          // 1. party report 2. sms reminder  3. watsup reminder
+
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: CollectionDB.getCollectionEntries(lenId!),
@@ -542,25 +494,91 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                           child: Card(
                             elevation: 2,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(12),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  _buildSummaryItem(
-                                      "Credit", totalCredit, Colors.red),
-                                  _buildSummaryItem(
-                                      "Debit", totalDebit, Colors.green),
-                                  _buildSummaryItem(
-                                      "Balance",
-                                      balance.abs(),
-                                      balance >= 0
-                                          ? Colors.green
-                                          : const Color.fromARGB(
-                                              255, 24, 2, 77)),
-                                ],
+                              child: FutureBuilder<Map<String, dynamic>>(
+                                future: dbLending.getLendingDetails(
+                                    lenId!), // Fetch lending details
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                        child:
+                                            Text('Error: ${snapshot.error}'));
+                                  } else if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const Center(
+                                        child: Text('No data found.'));
+                                  } else {
+                                    final data = snapshot.data!;
+                                    final totalAmtGivenWithProfit =
+                                        data['totalAmtGivenWithProfit'] ?? 0.0;
+                                    final amtCollected =
+                                        data['amtCollected'] ?? 0.0;
+                                    final dueDays = data['dueDays'] ?? 0;
+                                    final amtperday =
+                                        data['totalAmtGivenWithProfit'] ??
+                                            0.0 / data['dueDays'];
+                                    print(data['totalAmtGivenWithProfit']);
+                                    print(data['dueDays']);
+
+                                    // Calculate balance
+                                    final balance =
+                                        totalAmtGivenWithProfit - amtCollected;
+
+                                    // Calculate per day amounts using dueDays
+                                    final perdayamt =
+                                        totalAmtGivenWithProfit / dueDays;
+                                    final perDayCredit = dueDays > 0
+                                        ? totalAmtGivenWithProfit / dueDays
+                                        : 0.0;
+                                    final perDayDebit = dueDays > 0
+                                        ? amtCollected / dueDays
+                                        : 0.0;
+                                    final perDayBalance =
+                                        dueDays > 0 ? balance / dueDays : 0.0;
+
+                                    return Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        _buildSummaryItem(
+                                          "Credit",
+                                          totalAmtGivenWithProfit,
+                                          Colors.red,
+                                          additionalInfo: dueDays > 0
+                                              ? "(${dueDays.toStringAsFixed(2)})"
+                                              : "(N/A)", // Add calculation for Credit
+                                        ),
+                                        _buildSummaryItem(
+                                          "Debit",
+                                          amtCollected,
+                                          Colors.green,
+                                          additionalInfo: dueDays > 0
+                                              ? "(${(amtCollected / perdayamt).toStringAsFixed(2)})"
+                                              : "(N/A)", // Add calculation for Debit
+                                        ),
+                                        _buildSummaryItem(
+                                          "Balance",
+                                          balance.abs(),
+                                          balance >= 0
+                                              ? const Color.fromARGB(
+                                                  255, 10, 10, 10)
+                                              : const Color.fromARGB(
+                                                  255, 24, 2, 77),
+                                          additionalInfo: dueDays > 0
+                                              ? "(${(balance / perdayamt).abs().toStringAsFixed(2)})"
+                                              : "(N/A)", // Add calculation for Balance
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
                               ),
                             ),
                           ),
@@ -715,6 +733,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
               },
             ),
           ),
+          const SizedBox(height: 10),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -730,6 +749,13 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                 navigateTo: LendingCombinedDetailsScreen2(),
                 icon: Icons.add,
                 color: Colors.purple,
+              ),
+              FloatingActionButtonWithText(
+                label: 'Report',
+                // navigateTo: ViewReportsPage(),
+                navigateTo: ReportScreen2(lenId: lenId),
+                icon: Icons.picture_as_pdf_outlined,
+                color: Colors.brown,
               ),
               FloatingActionButtonWithText(
                 label: 'You Got',

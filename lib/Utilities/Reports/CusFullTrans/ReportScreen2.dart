@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:DigiVasool/finance_provider.dart';
 
 class ReportScreen2 extends StatefulWidget {
-  const ReportScreen2({super.key});
+  final int? lenId; // Make lenId optional
+
+  const ReportScreen2({Key? key, this.lenId}) : super(key: key);
 
   @override
   _ReportScreen2State createState() => _ReportScreen2State();
@@ -53,8 +55,15 @@ class _ReportScreen2State extends State<ReportScreen2> {
       endDate = DateFormat('yyyy-MM-dd').parse(formattedEndDate);
 
       // Fetch entries from the database
-      List<Map<String, dynamic>> entries =
-          await CollectionDB.getEntriesBetweenDates(startDate, endDate);
+      List<Map<String, dynamic>> entries;
+      if (widget.lenId != null) {
+        // Fetch entries for the specific customer
+        entries = await CollectionDB.getEntriesForCustomerBetweenDates(
+            widget.lenId!, startDate, endDate);
+      } else {
+        // Fetch entries for all customers
+        entries = await CollectionDB.getEntriesBetweenDates(startDate, endDate);
+      }
 
       double totalYouGave = 0.0;
       double totalYouGot = 0.0;
@@ -93,6 +102,95 @@ class _ReportScreen2State extends State<ReportScreen2> {
     }
   }
 
+  void _showDownloadOptions(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Download Options"),
+          content: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.blue.shade300, width: 1),
+            ),
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    "Choose how you want to group the report:",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _generateDateWisePdf(ref); // Generate Date-wise PDF
+              },
+              child: const Text("Date-wise"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _generatePartyWisePdf(ref); // Generate Party-wise PDF
+              },
+              child: const Text("Party-wise"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _generatePartyWisePdf(WidgetRef ref) {
+    final finnaame = ref.watch(financeProvider);
+
+    // Group entries by partyName
+    final groupedEntries = <String, List<PdfEntry>>{};
+    for (var entry in _entries) {
+      if (!groupedEntries.containsKey(entry.partyName)) {
+        groupedEntries[entry.partyName] = [];
+      }
+      groupedEntries[entry.partyName]!.add(entry);
+    }
+
+    // Flatten grouped entries into a single list for PDF generation
+    final List<PdfEntry> partyWiseEntries = [];
+    groupedEntries.forEach((partyName, entries) {
+      partyWiseEntries.addAll(entries);
+    });
+
+    generatePdf(
+      partyWiseEntries,
+      _totalYouGave,
+      _totalYouGot,
+      _startDateController.text,
+      _endDateController.text,
+      ref,
+      finnaame,
+      isPartyWise: true, // Pass a flag to indicate Party-wise grouping
+    );
+  }
+
+  void _generateDateWisePdf(WidgetRef ref) {
+    final finnaame = ref.watch(financeProvider);
+    generatePdf(
+      _entries,
+      _totalYouGave,
+      _totalYouGot,
+      _startDateController.text,
+      _endDateController.text,
+      ref,
+      finnaame,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,7 +212,9 @@ class _ReportScreen2State extends State<ReportScreen2> {
               children: [
                 Expanded(
                   child: CustomDatePicker(
-                    controller: _startDateController,
+                    controller: _startDateController
+                      ..text = DateFormat('dd-MM-yyyy').format(DateTime(
+                          DateTime.now().year, DateTime.now().month, 1)),
                     labelText: 'Start Date',
                     hintText: 'Pick a start date',
                     lastDate: DateTime.now(),
@@ -123,7 +223,8 @@ class _ReportScreen2State extends State<ReportScreen2> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: CustomDatePicker(
-                    controller: _endDateController,
+                    controller: _endDateController
+                      ..text = DateFormat('dd-MM-yyyy').format(DateTime.now()),
                     labelText: 'End Date',
                     hintText: 'Pick an end date',
                     lastDate:
@@ -258,15 +359,7 @@ class _ReportScreen2State extends State<ReportScreen2> {
                   final finnaame = ref.watch(financeProvider);
                   return Center(
                     child: ElevatedButton.icon(
-                      onPressed: () => generatePdf(
-                        _entries,
-                        _totalYouGave,
-                        _totalYouGot,
-                        _startDateController.text,
-                        _endDateController.text,
-                        ref,
-                        finnaame,
-                      ),
+                      onPressed: () => _showDownloadOptions(context, ref),
                       icon: const Icon(Icons.picture_as_pdf),
                       label: const Text('DOWNLOAD'),
                       style: ElevatedButton.styleFrom(

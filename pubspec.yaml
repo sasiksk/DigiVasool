@@ -62,6 +62,7 @@ dependencies:
   firebase_core: ^3.13.0
   extension_google_sign_in_as_googleapis_auth: ^2.0.13
   flutter_staggered_animations: ^1.1.1
+  lottie: ^3.3.0
   
   
   
@@ -99,7 +100,10 @@ flutter:
     - assets/intro_image.png
     - assets/fonts/Roboto-Regular.ttf
     - assets/google-services.json
-
+    - assets/animations/backup.json
+    - assets/animations/backup_icon.json
+    - assets/animations/restore.json
+    - assets/animations/sucess.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

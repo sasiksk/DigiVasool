@@ -171,17 +171,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               .read(financeProvider.notifier)
                               .saveFinanceName(_controller.text);
 
-                          var manageExternalStorageStatus =
-                              await Permission.manageExternalStorage.request();
-                          var storageStatus =
-                              await Permission.storage.request();
-                          var status = await Permission.sms.status;
-                          if (!status.isGranted) {
-                            status = await Permission.sms.request();
-                          }
-                          print('SMS Permission Status: $status');
-                          if (manageExternalStorageStatus.isGranted ||
-                              storageStatus.isGranted && status.isGranted) {
+                          // var manageExternalStorageStatus =
+                          //     await Permission.manageExternalStorage.request();
+                          // var storageStatus =
+                          //     await Permission.storage.request();
+                          // var status = await Permission.sms.status;
+                          // if (!status.isGranted) {
+                          //   status = await Permission.sms.request();
+                          // }
+                          // print('SMS Permission Status: $status');
+                          if (/*manageExternalStorageStatus.isGranted ||
+                              storageStatus.isGranted && status.isGranted*/
+                              1 == 1) {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

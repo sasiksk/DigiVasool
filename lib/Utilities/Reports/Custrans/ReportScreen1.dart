@@ -261,8 +261,8 @@ class _ReportScreen1State extends ConsumerState<ReportScreen1> {
                   child: Row(
                     children: [
                       // Label
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
+                      const Padding(
+                        padding: EdgeInsets.only(right: 8.0),
                         child: Text(
                           'Pick Line Name:',
                           style: TextStyle(
