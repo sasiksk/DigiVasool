@@ -379,7 +379,9 @@ $financeName
                                 lenId: lenid,
                                 financeName: ref.watch(financeNameProvider),
                                 lentDate: _lentDateController.text,
-                                amount: double.parse(_amtGivenController.text),
+                                amount:
+                                    (double.parse(_amtGivenController.text) +
+                                        double.parse(_profitController.text)),
                                 dueDays: int.parse(_dueDaysController.text),
                                 dueDate: _dueDateController.text,
                               );

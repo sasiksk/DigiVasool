@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
 import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
+import 'package:DigiVasool/Utilities/Reports/chartreport/ReportFilterScreen.dart';
 
 class ViewReportsPage extends StatelessWidget {
   const ViewReportsPage({super.key});
@@ -65,6 +66,19 @@ class ViewReportsPage extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const ReportScreen1()),
               ),
             ),
+            // ...existing code...
+            _buildReportCard(
+              context: context,
+              icon: Icons.description,
+              iconColor: Colors.blue,
+              title: "Customer Transactions Report",
+              subtitle: "Summary of all customer transactions",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ReportFilterScreen()),
+              ),
+            ),
+// ...existing code...
           ],
         ),
       ),

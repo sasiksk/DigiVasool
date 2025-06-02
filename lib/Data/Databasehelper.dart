@@ -884,6 +884,21 @@ class CollectionDB {
     return result;*/
   }
 
+  static Future<List<Map<String, dynamic>>> getCollectionSumByDate({
+    required String fromDate,
+    required String toDate,
+  }) async {
+    final db = await DatabaseHelper.getDatabase();
+    // Assuming your date is stored as 'yyyy-MM-dd' or similar
+    return await db.rawQuery('''
+    SELECT Date, SUM(CrAmt) as totalCrAmt, SUM(DrAmt) as totalDrAmt
+    FROM Collection
+    WHERE Date BETWEEN ? AND ?
+    GROUP BY Date
+    ORDER BY Date ASC
+  ''', [fromDate, toDate]);
+  }
+
   static Future<int> getLenIdForCid(int cid) async {
     final db = await DatabaseHelper.getDatabase();
     final result = await db.query(

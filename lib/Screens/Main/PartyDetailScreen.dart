@@ -1,5 +1,5 @@
 import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
-import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:DigiVasool/Screens/Main/CollectionScreen.dart';
@@ -9,7 +9,6 @@ import 'package:DigiVasool/Screens/Main/LendingScreen.dart';
 import 'package:DigiVasool/Utilities/EmptyCard1.dart';
 
 import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
-import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
 
 import 'package:DigiVasool/Screens/Main/lendingScreen2.dart';
 import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
@@ -524,8 +523,6 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                                     final amtperday =
                                         data['totalAmtGivenWithProfit'] ??
                                             0.0 / data['dueDays'];
-                                    print(data['totalAmtGivenWithProfit']);
-                                    print(data['dueDays']);
 
                                     // Calculate balance
                                     final balance =
@@ -534,14 +531,6 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                                     // Calculate per day amounts using dueDays
                                     final perdayamt =
                                         totalAmtGivenWithProfit / dueDays;
-                                    final perDayCredit = dueDays > 0
-                                        ? totalAmtGivenWithProfit / dueDays
-                                        : 0.0;
-                                    final perDayDebit = dueDays > 0
-                                        ? amtCollected / dueDays
-                                        : 0.0;
-                                    final perDayBalance =
-                                        dueDays > 0 ? balance / dueDays : 0.0;
 
                                     return Row(
                                       mainAxisAlignment:
