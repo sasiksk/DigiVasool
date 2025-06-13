@@ -246,8 +246,10 @@ class _PartyScreenState extends ConsumerState<PartyScreen> {
                 const SizedBox(height: 16.0),
                 CustomTextField(
                   controller: _addressController,
-                  labelText: 'Address(Optional)',
-                  hintText: 'Enter Address-Optional',
+                  labelText:
+                      'Address(Optional)/Note : Party Details-Area/Location',
+                  hintText:
+                      'Enter Address/Party Details (Area/Location )-Optional',
                   validator: (value) {
                     return null; // Address is optional, so no validation needed
                   },

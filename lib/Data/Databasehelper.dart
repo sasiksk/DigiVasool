@@ -329,6 +329,25 @@ class dbline {
 }
 
 class dbLending {
+  static Future<List<Map<String, dynamic>>> getActiveParties() async {
+    final db = await DatabaseHelper.getDatabase();
+    return await db.query(
+      'Lending',
+      columns: [
+        'PartyName',
+        'amtgiven',
+        'profit',
+        'amtcollected',
+        'duedays',
+        'PartyPhnone',
+        'status',
+        'lentdate'
+      ],
+      where: 'status = ?',
+      whereArgs: ['active'],
+    );
+  }
+
   static Future<Map<String, dynamic>> getLendingDetails(int lenId) async {
     final db = await DatabaseHelper.getDatabase();
 

@@ -1,3 +1,4 @@
+import 'package:DigiVasool/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
 import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
@@ -71,11 +72,23 @@ class ViewReportsPage extends StatelessWidget {
               context: context,
               icon: Icons.description,
               iconColor: Colors.blue,
-              title: "Customer Transactions Report",
-              subtitle: "Summary of all customer transactions",
+              title: "Daily Transaction Report",
+              subtitle: "Summary of all Daily transactions",
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const ReportFilterScreen()),
+              ),
+            ),
+            _buildReportCard(
+              context: context,
+              icon: Icons.description,
+              iconColor: Colors.blue,
+              title: "Daily Transaction Report",
+              subtitle: "Summary of all Daily transactions",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const PartyPendingDetailsScreen()),
               ),
             ),
 // ...existing code...
