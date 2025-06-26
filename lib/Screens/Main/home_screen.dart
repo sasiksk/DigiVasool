@@ -1,4 +1,5 @@
 import 'package:DigiVasool/Utilities/amtbuild.dart';
+import 'package:DigiVasool/Utilities/backup_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,6 +37,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BackupHelper.backupDbIfNeeded(context);
+    });
     loadLineNames();
     loadLineDetails();
     loadCollectionAndGivenByDate(selectedDate);

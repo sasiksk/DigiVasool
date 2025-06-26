@@ -86,9 +86,10 @@ Future<void> generatePdf(
 
           // Table Section
           if (isPartyWise)
-            ..._buildPartyWiseTable(entries, ttf) // Build Party-wise table
+            ..._buildPartyWiseTable(entries, ttf)
           else
-            _buildDateWiseTable(entries, ttf), // Build Date-wise table
+            ..._buildDateWiseTable(entries,
+                ttf), // <-- add spread operator here  // Build Date-wise table
         ];
       },
     ),
@@ -281,9 +282,9 @@ String _formatDate(String date) {
   }
 }
 
-pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
+List<pw.Widget> _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
   final groupedEntries = <String, List<PdfEntry>>{};
-
+  final List<pw.Widget> widgets = [];
   // Group entries by date
   for (var entry in entries) {
     if (!groupedEntries.containsKey(entry.date)) {
@@ -291,8 +292,6 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
     }
     groupedEntries[entry.date]!.add(entry);
   }
-
-  final List<pw.Widget> widgets = [];
 
   groupedEntries.forEach((date, dateEntries) {
     // Add "Date" header
@@ -316,15 +315,26 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
       pw.Table(
         border: pw.TableBorder.all(color: PdfColors.grey, width: 1),
         columnWidths: {
-          0: const pw.FlexColumnWidth(3),
-          1: const pw.FlexColumnWidth(2),
-          2: const pw.FlexColumnWidth(2),
+          0: const pw.FlexColumnWidth(1), // S.No column
+          1: const pw.FlexColumnWidth(3), // Name column
+          2: const pw.FlexColumnWidth(2), // Debit column
+          3: const pw.FlexColumnWidth(2), // Credit column
         },
         children: [
           // Table Header
           pw.TableRow(
             decoration: const pw.BoxDecoration(color: PdfColors.blue),
             children: [
+              pw.Padding(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text('S.No',
+                    style: pw.TextStyle(
+                      font: ttf,
+                      fontSize: 12,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.white,
+                    )),
+              ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Text('Name',
@@ -358,12 +368,21 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
             ],
           ),
           // Table Rows
-          ...dateEntries.map((pdfEntry) {
+          ...dateEntries.asMap().entries.map((entry) {
+            final index = entry.key;
+            final pdfEntry = entry.value;
             return pw.TableRow(
               decoration: const pw.BoxDecoration(
                 color: PdfColors.white,
               ),
               children: [
+                pw.Padding(
+                  padding: const pw.EdgeInsets.all(8),
+                  child: pw.Text(
+                    '${index + 1}',
+                    style: pw.TextStyle(font: ttf, fontSize: 10),
+                  ),
+                ),
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(8),
                   child: pw.Text(
@@ -374,7 +393,9 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(8),
                   child: pw.Text(
-                    pdfEntry.drAmt != 0.0 ? '\u20B9${pdfEntry.drAmt}' : '',
+                    pdfEntry.drAmt != 0.0
+                        ? '\u20B9${_formatAmount(pdfEntry.drAmt)}'
+                        : '',
                     style: pw.TextStyle(
                       font: ttf,
                       fontSize: 10,
@@ -385,7 +406,9 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
                 pw.Padding(
                   padding: const pw.EdgeInsets.all(8),
                   child: pw.Text(
-                    pdfEntry.crAmt != 0.0 ? '\u20B9${pdfEntry.crAmt}' : '',
+                    pdfEntry.crAmt != 0.0
+                        ? '\u20B9${_formatAmount(pdfEntry.crAmt)}'
+                        : '',
                     style: pw.TextStyle(
                       font: ttf,
                       fontSize: 10,
@@ -412,10 +435,11 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
                   ),
                 ),
               ),
+              pw.SizedBox(), // Empty cell for Name column
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Text(
-                  '\u20B9${dateEntries.fold(0.0, (sum, entry) => sum + entry.drAmt).toStringAsFixed(2)}',
+                  '\u20B9${_formatAmount(dateEntries.fold(0.0, (sum, entry) => sum + entry.drAmt))}',
                   style: pw.TextStyle(
                     font: ttf,
                     fontSize: 12,
@@ -427,7 +451,7 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8),
                 child: pw.Text(
-                  '\u20B9${dateEntries.fold(0.0, (sum, entry) => sum + entry.crAmt).toStringAsFixed(2)}',
+                  '\u20B9${_formatAmount(dateEntries.fold(0.0, (sum, entry) => sum + entry.crAmt))}',
                   style: pw.TextStyle(
                     font: ttf,
                     fontSize: 12,
@@ -445,6 +469,6 @@ pw.Column _buildDateWiseTable(List<PdfEntry> entries, pw.Font ttf) {
     // Add spacing between groups
     widgets.add(pw.SizedBox(height: 16));
   });
-
-  return pw.Column(children: widgets);
+  return widgets;
+  //return pw.Column(children: widgets);
 }

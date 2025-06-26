@@ -240,31 +240,28 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                       columnSpacing: 15.0, // Adjust the spacing between columns
                       columns: const [
                         DataColumn(
+                          label: Icon(Icons.check, size: 18),
+                        ),
+                        DataColumn(
                           label: SizedBox(
-                            width:
-                                70, // Adjust the width of the "Party Name" column
+                            width: 90,
                             child: Text('Party Name',
                                 style: TextStyle(fontSize: 12)),
                           ),
                         ),
                         DataColumn(
                           label: SizedBox(
-                            width:
-                                90, // Adjust the width of the "Balance Amt" column
+                            width: 70,
                             child: Text('Balance Amt',
                                 style: TextStyle(fontSize: 12)),
                           ),
                         ),
                         DataColumn(
                           label: SizedBox(
-                            width:
-                                70, // Adjust the width of the "Amount" column
+                            width: 70,
                             child:
                                 Text('Amount', style: TextStyle(fontSize: 12)),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text('Select', style: TextStyle(fontSize: 12)),
                         ),
                       ],
                       rows: List<DataRow>.generate(
@@ -274,30 +271,15 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                           final balanceAmt =
                               (detail['amtgiven'] + detail['profit']) -
                                   detail['amtcollected'];
+                          final partyName = detail['PartyName'] ?? '';
                           return DataRow(
                             cells: [
-                              DataCell(Text(detail['PartyName'],
-                                  style: const TextStyle(fontSize: 12))),
-                              DataCell(Text(balanceAmt.toStringAsFixed(2),
-                                  style: const TextStyle(fontSize: 12))),
-                              DataCell(
-                                TextFormField(
-                                  controller: _amountControllers[index],
-                                  style: const TextStyle(fontSize: 12),
-                                  keyboardType: TextInputType.number,
-                                  onTap: () {
-                                    _amountControllers[index].clear();
-                                  },
-                                  onChanged: (value) {
-                                    _updateTotalAmount();
-                                  },
-                                ),
-                              ),
+                              // 1. Tick icon (always visible)
                               DataCell(
                                 IconButton(
                                   icon: Icon(
                                     Icons.check_circle,
-                                    size: 32,
+                                    size: 28,
                                     color: _isCheckedList[index]
                                         ? Colors.blue
                                         : Colors.grey,
@@ -311,12 +293,58 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                                   },
                                 ),
                               ),
+                              // 2. Party Name (wrap if too long)
+                              DataCell(
+                                SizedBox(
+                                  width: 90,
+                                  child: Text(
+                                    partyName,
+                                    style: const TextStyle(fontSize: 12),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                  ),
+                                ),
+                              ),
+                              // 3. Balance Amt
+                              DataCell(
+                                Text(
+                                  balanceAmt.toStringAsFixed(2),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              // 4. Amount entry (auto-select tick on change)
+                              DataCell(
+                                SizedBox(
+                                  width: 70,
+                                  child: TextFormField(
+                                    controller: _amountControllers[index],
+                                    style: const TextStyle(fontSize: 12),
+                                    keyboardType: TextInputType.number,
+                                    onTap: () {
+                                      _amountControllers[index].clear();
+                                    },
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _isCheckedList[index] = true;
+                                        _updateTotalAmount();
+                                      });
+                                    },
+                                    decoration: const InputDecoration(
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 6, horizontal: 6),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           );
                         },
                       )..add(
                           DataRow(
                             cells: [
+                              const DataCell(Text('')), // Empty for tick
                               const DataCell(Text('Total',
                                   style: TextStyle(
                                       fontSize: 14,
@@ -329,9 +357,6 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.purple))),
-                              const DataCell(Text('',
-                                  style:
-                                      TextStyle(fontSize: 12))), // Empty cell
                             ],
                           ),
                         ),

@@ -18,9 +18,18 @@ class ReportScreen2 extends StatefulWidget {
 class _ReportScreen2State extends State<ReportScreen2> {
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
+
   List<PdfEntry> _entries = [];
   double _totalYouGave = 0.0;
   double _totalYouGot = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startDateController.text = DateFormat('dd-MM-yyyy')
+        .format(DateTime(DateTime.now().year, DateTime.now().month, 1));
+    _endDateController.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  }
 
   Future<void> _fetchEntries() async {
     if (_startDateController.text.isNotEmpty &&
@@ -192,6 +201,7 @@ class _ReportScreen2State extends State<ReportScreen2> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -202,19 +212,17 @@ class _ReportScreen2State extends State<ReportScreen2> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Date Selection Row
+            // Date pickers row
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: CustomDatePicker(
-                    controller: _startDateController
-                      ..text = DateFormat('dd-MM-yyyy').format(DateTime(
-                          DateTime.now().year, DateTime.now().month, 1)),
+                    controller: _startDateController,
                     labelText: 'Start Date',
                     hintText: 'Pick a start date',
                     lastDate: DateTime.now(),
@@ -223,31 +231,34 @@ class _ReportScreen2State extends State<ReportScreen2> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: CustomDatePicker(
-                    controller: _endDateController
-                      ..text = DateFormat('dd-MM-yyyy').format(DateTime.now()),
+                    controller: _endDateController,
                     labelText: 'End Date',
                     hintText: 'Pick an end date',
-                    lastDate:
-                        DateTime.now(), // Ensure end date does not exceed today
+                    lastDate: DateTime.now(),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _fetchEntries,
-              child: const Text('Fetch Entries'),
-            ),
-            const SizedBox(height: 16),
-
-            // Net Balance Section
-            const Text(
-              'Net Balance',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+// Fetch button in next row
             const SizedBox(height: 8),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _fetchEntries,
+                icon: const Icon(Icons.check_circle, color: Colors.white),
+                label: const Text('OK', style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+// Totals section (old color scheme)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.green.shade900,
                 borderRadius: BorderRadius.circular(8),
@@ -283,75 +294,88 @@ class _ReportScreen2State extends State<ReportScreen2> {
                 ],
               ),
             ),
-            const SizedBox(height: 6),
 
+            const SizedBox(height: 8),
             // Entries List
             Expanded(
               child: _entries.isEmpty
                   ? const Center(
                       child: Text(
                         'No entries found',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                        style: TextStyle(fontSize: 15, color: Colors.grey),
                       ),
                     )
                   : ListView.separated(
                       itemCount: _entries.length,
                       itemBuilder: (context, index) {
                         var entry = _entries[index];
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 16, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
+                        return Card(
+                          elevation: 1,
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    // Format the date as dd-MM-yyyy
-                                    DateFormat('dd-MM-yy').format(
-                                      DateFormat('yyyy-MM-dd')
-                                          .parse(entry.date),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat('dd-MM-yy').format(
+                                        DateFormat('yyyy-MM-dd')
+                                            .parse(entry.date),
+                                      ),
+                                      style: const TextStyle(
+                                          fontSize: 13, color: Colors.black54),
                                     ),
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    entry.partyName,
-                                    style: TextStyle(
-                                        color: Colors.deepPurple.shade900,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    entry.crAmt != 0.0 ? '₹${entry.crAmt}' : '',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    entry.drAmt != 0.0 ? '₹${entry.drAmt}' : '',
-                                    style: const TextStyle(color: Colors.green),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                    Text(
+                                      entry.partyName,
+                                      style: TextStyle(
+                                          color: Colors.deepPurple.shade900,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      entry.crAmt != 0.0
+                                          ? '₹${entry.crAmt}'
+                                          : '',
+                                      style: const TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      entry.drAmt != 0.0
+                                          ? '₹${entry.drAmt}'
+                                          : '',
+                                      style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
-                      separatorBuilder: (context, index) => const Divider(),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 6),
                     ),
             ),
-
             // Download Button in SafeArea
             SafeArea(
               child: Consumer(
@@ -368,6 +392,8 @@ class _ReportScreen2State extends State<ReportScreen2> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18, vertical: 12),
                       ),
                     ),
                   );

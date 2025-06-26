@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:googleapis/cloudsearch/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:DigiVasool/Data/Databasehelper.dart';
@@ -33,8 +32,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
       final amtGiven = (party['amtgiven'] as num?) ?? 0;
       final profit = (party['profit'] as num?) ?? 0;
       final amtCollected = (party['amtcollected'] as num?) ?? 0;
-      final pendingAmt = amtGiven + profit - amtCollected;
-      return pendingAmt > 0;
+      return (amtGiven + profit - amtCollected) > 0;
     }).toList();
 
     setState(() {
@@ -47,7 +45,6 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
   void _applySearchAndSort() {
     List<Map<String, dynamic>> tempList = List.from(_pendingList);
 
-    // Search filter
     if (_searchText.isNotEmpty) {
       tempList = tempList.where((party) {
         final name = (party['PartyName'] ?? '').toString().toLowerCase();
@@ -55,7 +52,6 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
       }).toList();
     }
 
-    // Sort
     tempList.sort((a, b) {
       final aAmt = ((a['amtgiven'] as num?) ?? 0) +
           ((a['profit'] as num?) ?? 0) -
@@ -63,11 +59,9 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
       final bAmt = ((b['amtgiven'] as num?) ?? 0) +
           ((b['profit'] as num?) ?? 0) -
           ((b['amtcollected'] as num?) ?? 0);
-      if (_sortOrder == PendingSort.highToLow) {
-        return bAmt.compareTo(aAmt);
-      } else {
-        return aAmt.compareTo(bAmt);
-      }
+      return _sortOrder == PendingSort.highToLow
+          ? bAmt.compareTo(aAmt)
+          : aAmt.compareTo(bAmt);
     });
 
     _filteredList = tempList;
@@ -89,9 +83,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
 
   void _callPhone(String phone) async {
     final uri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
   @override
@@ -99,121 +91,456 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Party Pending Details'),
+        title: const Text('Pending Parties',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [theme.primaryColor, theme.primaryColorDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Search bar
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search Party Name',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              ),
-              onChanged: _onSearchChanged,
-            ),
-            const SizedBox(height: 10),
-            // Filter Row
-            Row(
-              children: [
-                Icon(Icons.filter_alt, color: theme.primaryColor),
-                const SizedBox(width: 8),
-                Text("Filter", style: theme.textTheme.titleMedium),
-                const Spacer(),
-                PopupMenuButton<PendingSort>(
-                  icon: const Icon(Icons.sort),
-                  onSelected: _onSortChanged,
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: PendingSort.highToLow,
-                      child: const Text('High Pending to Low'),
-                    ),
-                    PopupMenuItem(
-                      value: PendingSort.lowToHigh,
-                      child: const Text('Low Pending to High'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+            // Search Bar
+            _buildSearchBar(theme),
+            const SizedBox(height: 16),
+
+            // Sorting Controls
+            _buildSortingControls(theme),
+            const SizedBox(height: 16),
+
+            // Party List
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _filteredList.isEmpty
-                      ? const Center(child: Text("No pending parties found."))
-                      : ListView.separated(
-                          itemCount: _filteredList.length,
-                          separatorBuilder: (_, __) => const Divider(),
-                          itemBuilder: (context, index) {
-                            final party = _filteredList[index];
-                            final amtGiven = (party['amtgiven'] as num?) ?? 0;
-                            final profit = (party['profit'] as num?) ?? 0;
-                            final amtCollected =
-                                (party['amtcollected'] as num?) ?? 0;
-                            final dueDays = (party['duedays'] as int?) ?? 0;
-                            final pendingAmt = amtGiven + profit - amtCollected;
-                            final totalAmt = amtGiven + profit;
-
-                            // Calculate per day amount and pending days
-                            double perDayAmt = 0;
-                            if (totalAmt > 0 && dueDays > 0) {
-                              perDayAmt = totalAmt / dueDays;
-                            }
-                            double pendingDays = 0;
-                            if (perDayAmt > 0) {
-                              pendingDays = pendingAmt / perDayAmt;
-                            }
-
-                            final phone =
-                                party['PartyPhnone']?.toString() ?? '';
-
-                            return ListTile(
-                              leading: CircleAvatar(
-                                child: Text(
-                                  (party['PartyName'] ?? '')
-                                          .toString()
-                                          .isNotEmpty
-                                      ? party['PartyName']
-                                          .toString()
-                                          .substring(0, 1)
-                                          .toUpperCase()
-                                      : '?',
-                                ),
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.assignment,
+                                  size: 64, color: theme.disabledColor),
+                              const SizedBox(height: 16),
+                              Text(
+                                "No pending parties found",
+                                style: theme.textTheme.titleMedium
+                                    ?.copyWith(color: theme.disabledColor),
                               ),
-                              title: Text(party['PartyName'] ?? ''),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      "Pending Amt: ₹${pendingAmt.toStringAsFixed(2)}"),
-                                  Text(
-                                      "Pending Days: ${pendingDays.isNaN ? '-' : pendingDays.toStringAsFixed(1)}"),
-                                ],
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.phone,
-                                    color: Colors.green),
-                                onPressed: phone.isNotEmpty
-                                    ? () => _callPhone(phone)
-                                    : null,
-                                tooltip: phone.isNotEmpty
-                                    ? "Call $phone"
-                                    : "No phone",
-                              ),
-                            );
-                          },
-                        ),
+                            ],
+                          ),
+                        )
+                      : _buildPartyList(),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSearchBar(ThemeData theme) {
+    return TextField(
+      decoration: InputDecoration(
+        hintText: 'Search by party name...',
+        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      ),
+      onChanged: _onSearchChanged,
+    );
+  }
+
+  Widget _buildSortingControls(ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Sort by:',
+          style: theme.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w600),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: DropdownButton<PendingSort>(
+            value: _sortOrder,
+            underline: const SizedBox(),
+            icon: const Icon(Icons.arrow_drop_down),
+            isDense: true,
+            style: theme.textTheme.bodyMedium,
+            items: const [
+              DropdownMenuItem(
+                value: PendingSort.highToLow,
+                child: Text('High Pending First'),
+              ),
+              DropdownMenuItem(
+                value: PendingSort.lowToHigh,
+                child: Text('Low Pending First'),
+              ),
+            ],
+            onChanged: (value) => value != null ? _onSortChanged(value) : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPartyList() {
+    return ListView.separated(
+      itemCount: _filteredList.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      itemBuilder: (context, index) {
+        final party = _filteredList[index];
+        return PartyCard(
+          party: party,
+          callPhone: _callPhone,
+        );
+      },
+    );
+  }
+}
+
+class PartyCard extends StatefulWidget {
+  final Map<String, dynamic> party;
+  final void Function(String) callPhone;
+
+  const PartyCard({required this.party, required this.callPhone, super.key});
+
+  @override
+  State<PartyCard> createState() => _PartyCardState();
+}
+
+class _PartyCardState extends State<PartyCard> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final party = widget.party;
+    final amtGiven = (party['amtgiven'] as num?) ?? 0;
+    final profit = (party['profit'] as num?) ?? 0;
+    final amtCollected = (party['amtcollected'] as num?) ?? 0;
+    final dueDays = (party['duedays'] as int?) ?? 0;
+    final lentDateStr = party['Lentdate'] ?? party['lentdate'] ?? '';
+    final phone = party['PartyPhnone']?.toString() ?? '';
+
+    final totalAmt = amtGiven + profit;
+    final pendingAmt = totalAmt - amtCollected;
+    final perDayAmt = (totalAmt > 0 && dueDays > 0) ? totalAmt / dueDays : 0;
+
+    int? daysOver;
+    if (lentDateStr.isNotEmpty) {
+      try {
+        daysOver = DateTime.now()
+            .difference(DateFormat('yyyy-MM-dd').parse(lentDateStr))
+            .inDays;
+      } catch (_) {
+        daysOver = null;
+      }
+    }
+
+    final daysRem = (dueDays != 0 && daysOver != null) ? dueDays - daysOver : 0;
+
+    String dueDateStr = '-';
+    if (lentDateStr.isNotEmpty && dueDays > 0) {
+      try {
+        final lentDate = DateFormat('yyyy-MM-dd').parse(lentDateStr);
+        final dueDate = lentDate.add(Duration(days: dueDays));
+        dueDateStr = DateFormat('dd MMM yyyy').format(dueDate);
+      } catch (_) {}
+    }
+
+    final daysPaid = perDayAmt != 0 ? amtCollected / perDayAmt : 0.0;
+    final pendingDays =
+        daysRem > 0 ? ((daysOver ?? 0) - daysPaid) : ((dueDays) - daysPaid);
+
+    final isOverdue = daysRem != null && daysRem < 0;
+    final progress = totalAmt > 0 ? amtCollected / totalAmt : 0.0;
+
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Party header
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    party['PartyName'] ?? 'Unknown Party',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                ),
+                if (phone.isNotEmpty)
+                  IconButton(
+                    icon:
+                        const Icon(Icons.phone, color: Colors.green, size: 28),
+                    onPressed: () => widget.callPhone(phone),
+                    tooltip: 'Call $phone',
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Days overview
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildDaysBox('Over', '${daysOver ?? 0}', Colors.blue),
+                _buildDaysBox(
+                    'Paid', daysPaid.toStringAsFixed(1), Colors.green),
+                _buildDaysBox(
+                  pendingDays < 0 ? 'Advance' : 'Pending',
+                  pendingDays.abs().toStringAsFixed(1),
+                  pendingDays < 0 ? Colors.orange : Colors.red,
+                ),
+                IconButton(
+                  icon: Icon(
+                    _expanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.deepPurple,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _expanded = !_expanded;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // Expanded details
+            if (_expanded) ...[
+              const Divider(),
+              const SizedBox(height: 8),
+
+              // Amounts row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildAmountCard(
+                      'Total', '₹${NumberFormat('#,##0.00').format(totalAmt)}'),
+                  _buildAmountCard('Collected',
+                      '₹${NumberFormat('#,##0.00').format(amtCollected)}'),
+                  _buildAmountCard(
+                    'Pending',
+                    '₹${NumberFormat('#,##0.00').format(pendingAmt)}',
+                    isHighlighted: true,
+                    color: isOverdue ? Colors.red : Colors.deepPurple,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Progress bar
+              Stack(
+                children: [
+                  LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 25,
+                    backgroundColor: Colors.grey[200],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      progress == 1 ? Colors.green : theme.primaryColor,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  Positioned.fill(
+                    child: Center(
+                      child: Text(
+                        '${(progress * 100).toStringAsFixed(1)}% Collected',
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 1, 37, 25),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Date info
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildDateCard('Lent Date', lentDateStr),
+                  _buildDateCard('Due Date', dueDateStr),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              // Due status
+              if (isOverdue)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.warning, color: Colors.red, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        'OVERDUE: ${daysRem.abs()} days',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else if (daysRem > 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.access_time,
+                          color: Colors.green, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        'DUE IN: $daysRem days',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Call button
+              if (phone.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.phone),
+                    label: const Text('Call Now'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () => widget.callPhone(phone),
+                  ),
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDaysBox(String title, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Text(title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: color,
+              )),
+          const SizedBox(height: 4),
+          Text(value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAmountCard(String label, String value,
+      {bool isHighlighted = false, Color? color}) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
+            color: color ?? Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateCard(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

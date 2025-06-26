@@ -83,8 +83,8 @@ class ViewReportsPage extends StatelessWidget {
               context: context,
               icon: Icons.description,
               iconColor: Colors.blue,
-              title: "Daily Transaction Report",
-              subtitle: "Summary of all Daily transactions",
+              title: "Pending Transaction Report",
+              subtitle: "Summary of all Party pending transactions",
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

@@ -17,13 +17,23 @@ class DownloadDBScreen extends StatelessWidget {
       final dbPath = db.path;
       final dbFile = File(dbPath);
 
-      // Generate a file name based on today's date
-      final String todayDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      // Generate a file name based on today's date and time
+      final now = DateTime.now();
+      final String todayDate = DateFormat('yyyy-MM-dd_HH-mm-ss').format(now);
       final appDir = await getApplicationDocumentsDirectory();
       final backupFile = File('${appDir.path}/backup_$todayDate.db');
 
       // Copy the database file to the new location with the new name
       await dbFile.copy(backupFile.path);
+
+      // Also copy to Android/media/com.DigiThinkers.DigiVasool
+      final mediaDir = Directory(
+          '/storage/emulated/0/Android/media/com.DigiThinkers.DigiVasool');
+      if (!(await mediaDir.exists())) {
+        await mediaDir.create(recursive: true);
+      }
+      final mediaBackupFile = File('${mediaDir.path}/backup_$todayDate.db');
+      await dbFile.copy(mediaBackupFile.path);
 
       // Show a loading animation while preparing the backup
       showDialog(
@@ -42,7 +52,7 @@ class DownloadDBScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Lottie.asset(
-                      'assets/animations/backup_icon.json', // Add a Lottie animation file for backup
+                      'assets/animations/backup_icon.json',
                       width: 150,
                       height: 150,
                       repeat: true,
@@ -53,7 +63,7 @@ class DownloadDBScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.red, // Changed text color to red
+                        color: Colors.red,
                       ),
                     ),
                   ],
@@ -70,6 +80,9 @@ class DownloadDBScreen extends StatelessWidget {
       // Dismiss the loading animation
       Navigator.of(context).pop();
 
+      // After backup, check for old backup files and prompt for deletion
+      await checkAndPromptDeleteOldBackups(context, mediaDir);
+
       // Show alert dialog for backup completion
       showDialog(
         context: context,
@@ -83,8 +96,6 @@ class DownloadDBScreen extends StatelessWidget {
                 child: const Text('Share Backup'),
                 onPressed: () async {
                   Navigator.of(context).pop(); // Dismiss the dialog
-
-                  // Share the database file
                   await Share.shareXFiles([XFile(backupFile.path)],
                       text: 'Here is the backup of your database file.');
                 },
@@ -104,6 +115,90 @@ class DownloadDBScreen extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error creating backup: $e")),
       );
+    }
+  }
+
+  Future<void> checkAndPromptDeleteOldBackups(
+      BuildContext context, Directory mediaDir) async {
+    try {
+      // List all files in the mediaDir
+      final List<FileSystemEntity> mediaFiles = mediaDir.listSync();
+
+      // Filter out the backup files (assuming they start with 'backup_')
+      final List<FileSystemEntity> mediaBackupFiles = mediaFiles.where((file) {
+        return file is File && file.path.contains('/backup_');
+      }).toList();
+
+      // Also check the app sandbox directory
+      final appDir = await getApplicationDocumentsDirectory();
+      final List<FileSystemEntity> appFiles = Directory(appDir.path).listSync();
+      final List<FileSystemEntity> appBackupFiles = appFiles.where((file) {
+        return file is File && file.path.contains('/backup_');
+      }).toList();
+
+      // If there are more than 10 backup files, prompt the user to delete old ones
+      if (mediaBackupFiles.length > 10) {
+        // Sort by file path (which includes date/time, so latest will be last)
+        mediaBackupFiles.sort((a, b) => b.path.compareTo(a.path));
+        appBackupFiles.sort((a, b) => b.path.compareTo(a.path));
+
+        // Show a dialog to the user
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Delete Old Backups'),
+              content: const Text(
+                  'You have more than 10 backup files. Do you want to delete the oldest backups and keep only the latest 10? This will delete from both backup locations.'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Yes'),
+                  onPressed: () async {
+                    Navigator.of(context).pop(); // Dismiss the dialog
+
+                    // Delete old backup files, keeping only the latest 10
+                    for (int i = 10; i < mediaBackupFiles.length; i++) {
+                      try {
+                        if (mediaBackupFiles[i] is File) {
+                          await (mediaBackupFiles[i] as File).delete();
+                        }
+                      } catch (e) {
+                        debugPrint(
+                            'Error deleting media file: ${mediaBackupFiles[i]}');
+                      }
+                    }
+                    for (int i = 10; i < appBackupFiles.length; i++) {
+                      try {
+                        if (appBackupFiles[i] is File) {
+                          await (appBackupFiles[i] as File).delete();
+                        }
+                      } catch (e) {
+                        debugPrint(
+                            'Error deleting sandbox file: ${appBackupFiles[i]}');
+                      }
+                    }
+
+                    // Show a snackbar or dialog to inform the user
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              'Old backup files deleted from both locations.')),
+                    );
+                  },
+                ),
+                TextButton(
+                  child: const Text('No'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Dismiss the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint('Error checking or deleting old backups: $e');
     }
   }
 
