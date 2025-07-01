@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
 import 'package:intl/intl.dart';
 /*import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -9,8 +9,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'dart:io';
 import 'package:open_file/open_file.dart';
-import 'package:DigiVasool/Utilities/Reports/CusFullTrans/pdf_generator.dart';*/
-import 'package:DigiVasool/finance_provider.dart';
+import 'package:vasool_diary/Utilities/Reports/CusFullTrans/pdf_generator.dart';*/
+import 'package:vasool_diary/finance_provider.dart';
 
 class Partyreportscreen extends ConsumerStatefulWidget {
   const Partyreportscreen({super.key});

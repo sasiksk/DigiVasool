@@ -1,9 +1,9 @@
-//import 'package:DigiVasool/Views/HomeScreen.dart';
+//import 'package:vasool_diary/Views/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:DigiVasool/Screens/Main/IntroductionDcreen.dart';
-import 'package:DigiVasool/Screens/Main/home_screen.dart';
+import 'package:vasool_diary/Screens/Main/IntroductionDcreen.dart';
+import 'package:vasool_diary/Screens/Main/home_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 

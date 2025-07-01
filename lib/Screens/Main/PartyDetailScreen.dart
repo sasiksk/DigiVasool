@@ -1,17 +1,17 @@
-import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
+import 'package:vasool_diary/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/Screens/Main/CollectionScreen.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Screens/Main/LendingScreen.dart';
+import 'package:vasool_diary/Screens/Main/CollectionScreen.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Screens/Main/LendingScreen.dart';
 
-import 'package:DigiVasool/Utilities/EmptyCard1.dart';
+import 'package:vasool_diary/Utilities/EmptyCard1.dart';
 
-import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
+import 'package:vasool_diary/Utilities/FloatingActionButtonWithText.dart';
 
-import 'package:DigiVasool/Screens/Main/lendingScreen2.dart';
-import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
+import 'package:vasool_diary/Screens/Main/lendingScreen2.dart';
+import 'package:vasool_diary/Screens/Main/linedetailScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 

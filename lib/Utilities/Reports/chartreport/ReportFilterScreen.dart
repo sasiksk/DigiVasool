@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class ReportFilterScreen extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 
 class PartyPendingDetailsScreen extends StatefulWidget {
   const PartyPendingDetailsScreen({super.key});

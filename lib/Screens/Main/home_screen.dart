@@ -1,18 +1,18 @@
-import 'package:DigiVasool/Utilities/amtbuild.dart';
-import 'package:DigiVasool/Utilities/backup_helper.dart';
+import 'package:vasool_diary/Utilities/amtbuild.dart';
+import 'package:vasool_diary/Utilities/backup_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Screens/Main/LineScreen.dart';
-import 'package:DigiVasool/Utilities/AppBar.dart';
-import 'package:DigiVasool/Utilities/EmptyCard1.dart';
-import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
-import 'package:DigiVasool/Utilities/drawer.dart';
-import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
-import 'package:DigiVasool/Screens/Main/linedetailScreen.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Screens/Main/LineScreen.dart';
+import 'package:vasool_diary/Utilities/AppBar.dart';
+import 'package:vasool_diary/Utilities/EmptyCard1.dart';
+import 'package:vasool_diary/Utilities/Reports/CustomerReportScreen.dart';
+import 'package:vasool_diary/Utilities/drawer.dart';
+import 'package:vasool_diary/Utilities/FloatingActionButtonWithText.dart';
+import 'package:vasool_diary/Screens/Main/linedetailScreen.dart';
 import '../../finance_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {

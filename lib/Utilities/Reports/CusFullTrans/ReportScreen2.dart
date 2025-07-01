@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
 import 'package:intl/intl.dart';
-import 'package:DigiVasool/Utilities/Reports/CusFullTrans/pdf_generator.dart';
+import 'package:vasool_diary/Utilities/Reports/CusFullTrans/pdf_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/finance_provider.dart';
+import 'package:vasool_diary/finance_provider.dart';
 
 class ReportScreen2 extends StatefulWidget {
   final int? lenId; // Make lenId optional
@@ -18,7 +18,9 @@ class ReportScreen2 extends StatefulWidget {
 class _ReportScreen2State extends State<ReportScreen2> {
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
+  String _selectedType = 'All'; // Default
 
+  final List<String> _entryTypes = ['All', 'Debit', 'Credit'];
   List<PdfEntry> _entries = [];
   double _totalYouGave = 0.0;
   double _totalYouGot = 0.0;
@@ -101,6 +103,11 @@ class _ReportScreen2State extends State<ReportScreen2> {
         );
 
         pdfEntries.add(pdfEntry);
+      }
+      if (_selectedType == 'Debit') {
+        pdfEntries = pdfEntries.where((e) => e.drAmt != 0.0).toList();
+      } else if (_selectedType == 'Credit') {
+        pdfEntries = pdfEntries.where((e) => e.crAmt != 0.0).toList();
       }
 
       setState(() {
@@ -239,19 +246,56 @@ class _ReportScreen2State extends State<ReportScreen2> {
                 ),
               ],
             ),
-// Fetch button in next row
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Center(
-              child: ElevatedButton.icon(
-                onPressed: _fetchEntries,
-                icon: const Icon(Icons.check_circle, color: Colors.white),
-                label: const Text('OK', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Show: ', style: TextStyle(fontSize: 15)),
+                    const SizedBox(width: 8),
+                    DropdownButton<String>(
+                      value: _selectedType,
+                      items: _entryTypes.map((type) {
+                        return DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedType = value!;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 24),
+                    SizedBox(
+                      height: 40,
+                      child: ElevatedButton.icon(
+                        onPressed: _fetchEntries,
+                        icon: const Icon(Icons.check_circle,
+                            color: Colors.white, size: 20),
+                        label: const Text('OK',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 15)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 8),
+                          minimumSize: const Size(100, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

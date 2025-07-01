@@ -8,7 +8,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:kskfinance/main.dart';
+import 'package:vasool_diary/main.dart'; // Import your main app widget
+// If the above import still fails, try the following relative import instead:
+// import '../lib/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

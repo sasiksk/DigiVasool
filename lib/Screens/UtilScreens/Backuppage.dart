@@ -28,7 +28,7 @@ class DownloadDBScreen extends StatelessWidget {
 
       // Also copy to Android/media/com.DigiThinkers.DigiVasool
       final mediaDir = Directory(
-          '/storage/emulated/0/Android/media/com.DigiThinkers.DigiVasool');
+          '/storage/emulated/0/Android/media/com.DigiThinkers.VasoolDiary');
       if (!(await mediaDir.exists())) {
         await mediaDir.create(recursive: true);
       }

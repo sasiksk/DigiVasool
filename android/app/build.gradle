@@ -31,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.DigiThinkers.DigiVasool"
+        applicationId = "com.DigiThinkers.VasoolDiary"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

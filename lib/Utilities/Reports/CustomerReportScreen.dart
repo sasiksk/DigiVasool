@@ -1,8 +1,9 @@
-import 'package:DigiVasool/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
+import 'package:vasool_diary/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:DigiVasool/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
-import 'package:DigiVasool/Utilities/Reports/Custrans/ReportScreen1.dart';
-import 'package:DigiVasool/Utilities/Reports/chartreport/ReportFilterScreen.dart';
+import 'package:vasool_diary/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
+import 'package:vasool_diary/Utilities/Reports/Custrans/ReportScreen1.dart';
+import 'package:vasool_diary/Utilities/Reports/chartreport/ReportFilterScreen.dart';
+import 'package:vasool_diary/Utilities/Reports/Dailyreport/PartyReportPage.dart';
 
 class ViewReportsPage extends StatelessWidget {
   const ViewReportsPage({super.key});
@@ -89,6 +90,17 @@ class ViewReportsPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                     builder: (_) => const PartyPendingDetailsScreen()),
+              ),
+            ),
+            _buildReportCard(
+              context: context,
+              icon: Icons.description,
+              iconColor: Colors.blue,
+              title: "Active Parties Report",
+              subtitle: "Summary of all Party transactions-Your Diary",
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const PartyReportPage()),
               ),
             ),
 // ...existing code...

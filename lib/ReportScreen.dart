@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 
 class ReportScreen extends StatefulWidget {
   @override

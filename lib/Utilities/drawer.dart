@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:DigiVasool/Screens/TableDetailsScreen.dart';
-import 'package:DigiVasool/Screens/UtilScreens/bulk_insert_screen.dart';
-import 'package:DigiVasool/firebase_backup_screen.dart';
-import 'package:DigiVasool/google_drive_backup_screen.dart';
-import 'package:DigiVasool/Screens/UtilScreens/Backuppage.dart';
-import 'package:DigiVasool/ContactUs.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Screens/UtilScreens/Restore.dart';
-import 'package:DigiVasool/Utilities/Reports/CustomerReportScreen.dart';
-import 'package:DigiVasool/Screens/Main/home_screen.dart';
+import 'package:vasool_diary/Screens/TableDetailsScreen.dart';
+import 'package:vasool_diary/Screens/UtilScreens/bulk_insert_screen.dart';
+import 'package:vasool_diary/firebase_backup_screen.dart';
+import 'package:vasool_diary/google_drive_backup_screen.dart';
+import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
+import 'package:vasool_diary/ContactUs.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Screens/UtilScreens/Restore.dart';
+import 'package:vasool_diary/Utilities/Reports/CustomerReportScreen.dart';
+import 'package:vasool_diary/Screens/Main/home_screen.dart';
 
 Widget buildDrawer(BuildContext context) {
   return Drawer(
@@ -48,12 +48,12 @@ Widget buildDrawer(BuildContext context) {
                 title: 'Home',
                 onTap: () => _navigateTo(context, const HomeScreen()),
               ),
-              _buildDrawerItem(
+              /* _buildDrawerItem(
                 context,
                 icon: Icons.insert_drive_file,
                 title: 'Table Details',
                 onTap: () => _navigateTo(context, const TableDetailsScreen()),
-              ),
+              ),*/
               _buildDrawerItem(
                 context,
                 icon: Icons.insert_drive_file,

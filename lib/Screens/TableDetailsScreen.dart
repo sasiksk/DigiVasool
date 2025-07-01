@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 
 class TableDetailsScreen extends StatefulWidget {
   const TableDetailsScreen({super.key});

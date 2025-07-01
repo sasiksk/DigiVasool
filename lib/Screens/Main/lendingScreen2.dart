@@ -1,12 +1,12 @@
-import 'package:DigiVasool/Sms.dart';
+import 'package:vasool_diary/Sms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 
-import 'package:DigiVasool/Utilities/AppBar.dart';
-import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
-import 'package:DigiVasool/Utilities/CustomTextField.dart';
-import 'package:DigiVasool/finance_provider.dart';
+import 'package:vasool_diary/Utilities/AppBar.dart';
+import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
+import 'package:vasool_diary/Utilities/CustomTextField.dart';
+import 'package:vasool_diary/finance_provider.dart';
 import 'package:intl/intl.dart';
 
 class LendingCombinedDetailsScreen2 extends ConsumerWidget {

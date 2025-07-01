@@ -1,7 +1,7 @@
-import 'package:DigiVasool/Screens/Main/IntroductionDcreen.dart';
+import 'package:vasool_diary/Screens/Main/IntroductionDcreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../finance_provider.dart';
@@ -49,7 +49,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   InputDecoration _textFieldDecoration() {
     return InputDecoration(
-      labelText: 'Enter Finance Your Name',
+      labelText: 'Enter Name',
       labelStyle: const TextStyle(
         color: Colors.blue,
         fontSize: 16,

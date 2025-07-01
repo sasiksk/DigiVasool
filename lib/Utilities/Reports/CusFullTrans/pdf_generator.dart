@@ -113,6 +113,7 @@ List<pw.Widget> _buildPartyWiseTable(List<PdfEntry> entries, pw.Font ttf) {
   final List<pw.Widget> widgets = [];
 
   groupedEntries.forEach((partyName, partyEntries) {
+    partyEntries.sort((a, b) => a.date.compareTo(b.date));
     final totalDr = partyEntries.fold(0.0, (sum, entry) => sum + entry.drAmt);
     final totalCr = partyEntries.fold(0.0, (sum, entry) => sum + entry.crAmt);
 

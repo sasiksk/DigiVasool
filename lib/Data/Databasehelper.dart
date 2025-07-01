@@ -3,7 +3,7 @@ import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
 
 import 'package:intl/intl.dart';
-import 'package:DigiVasool/Utilities/Reports/Custrans/pdf_generator2.dart';
+import 'package:vasool_diary/Utilities/Reports/Custrans/pdf_generator2.dart';
 
 class DatabaseHelper {
   /*static Future<void> getDatabasePath() async {
@@ -346,6 +346,69 @@ class dbLending {
       where: 'status = ?',
       whereArgs: ['active'],
     );
+  }
+
+  static Future<List<Map<String, dynamic>>>
+      getActiveLendingSummaryWithCollections() async {
+    final db = await DatabaseHelper.getDatabase();
+    final List<Map<String, dynamic>> lendings = await db.query(
+      'Lending',
+      columns: [
+        'LenId',
+        'PartyName',
+        'amtgiven',
+        'profit',
+        'amtcollected',
+        'Lentdate',
+        'duedays',
+      ],
+      where: 'status = ?',
+      whereArgs: ['active'],
+      orderBy: 'PartyName ASC',
+    );
+
+    List<Map<String, dynamic>> summaryList = [];
+    for (final l in lendings) {
+      final lenId = l['LenId'];
+      final partyName = l['PartyName'] ?? '';
+      final amtGiven = (l['amtgiven'] ?? 0.0) as double;
+      final profit = (l['profit'] ?? 0.0) as double;
+      final amtCollected = (l['amtcollected'] ?? 0.0) as double;
+      final totalGiven = amtGiven + profit;
+      final lentDate = l['Lentdate'] ?? '';
+      final dueDays = l['duedays'] ?? 0;
+      String dueDate = '';
+      if (lentDate != null && lentDate != '' && dueDays != null) {
+        try {
+          final dt = DateFormat('yyyy-MM-dd').parse(lentDate);
+          dueDate =
+              DateFormat('dd-MM-yyyy').format(dt.add(Duration(days: dueDays)));
+        } catch (_) {}
+      }
+
+      // Fetch collection entries for this LenId after or equal to Lentdate, sorted by date
+      List<Map<String, dynamic>> collections = [];
+      if (lentDate != null && lentDate != '') {
+        collections = await db.query(
+          'Collection',
+          where: 'LenId = ? AND Date > ?',
+          whereArgs: [lenId, lentDate],
+          orderBy: 'Date ASC',
+        );
+      }
+
+      summaryList.add({
+        'LenId': lenId,
+        'PartyName': partyName,
+        'TotalGiven': totalGiven,
+        'AmtCollected': amtCollected,
+        'LentDate': lentDate,
+        'DueDate': dueDate,
+        'DueDays': dueDays,
+        'Collections': collections, // List of collection entries for this LenId
+      });
+    }
+    return summaryList;
   }
 
   static Future<Map<String, dynamic>> getLendingDetails(int lenId) async {

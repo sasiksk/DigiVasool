@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Utilities/CustomDatePicker.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
 import 'package:intl/intl.dart';
 
-import 'package:DigiVasool/finance_provider.dart';
+import 'package:vasool_diary/finance_provider.dart';
 
 class Linereportscreen extends ConsumerStatefulWidget {
   @override

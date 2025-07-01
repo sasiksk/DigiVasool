@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Utilities/CustomTextField.dart';
-import 'package:DigiVasool/Screens/Main/home_screen.dart';
-import 'package:DigiVasool/Utilities/AppBar.dart'; // Import CustomAppBar
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/CustomTextField.dart';
+import 'package:vasool_diary/Screens/Main/home_screen.dart';
+import 'package:vasool_diary/Utilities/AppBar.dart'; // Import CustomAppBar
 
 class LineScreen extends StatefulWidget {
   final Map<String, dynamic>? entry;

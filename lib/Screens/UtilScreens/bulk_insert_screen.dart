@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
-import 'package:DigiVasool/Screens/Main/CollectionScreen.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Screens/Main/CollectionScreen.dart';
 import 'package:intl/intl.dart';
 
 class BulkInsertScreen extends StatefulWidget {

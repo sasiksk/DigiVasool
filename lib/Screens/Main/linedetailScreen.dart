@@ -1,18 +1,18 @@
-import 'package:DigiVasool/Utilities/amtbuild.dart';
+import 'package:vasool_diary/Utilities/amtbuild.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:DigiVasool/Data/Databasehelper.dart';
+import 'package:vasool_diary/Data/Databasehelper.dart';
 
-import 'package:DigiVasool/Screens/Main/PartyDetailScreen.dart';
-import 'package:DigiVasool/Utilities/AppBar.dart';
-import 'package:DigiVasool/Utilities/EmptyCard1.dart';
+import 'package:vasool_diary/Screens/Main/PartyDetailScreen.dart';
+import 'package:vasool_diary/Utilities/AppBar.dart';
+import 'package:vasool_diary/Utilities/EmptyCard1.dart';
 
-import 'package:DigiVasool/Utilities/FloatingActionButtonWithText.dart';
+import 'package:vasool_diary/Utilities/FloatingActionButtonWithText.dart';
 
-import 'package:DigiVasool/Screens/Main/PartyScreen.dart';
-import 'package:DigiVasool/Utilities/drawer.dart';
+import 'package:vasool_diary/Screens/Main/PartyScreen.dart';
+import 'package:vasool_diary/Utilities/drawer.dart';
 import '../../finance_provider.dart';
 
 class LineDetailScreen extends ConsumerStatefulWidget {
