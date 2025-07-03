@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vasool_diary/finance_provider.dart';
 import 'party_report_pdf.dart';
@@ -14,81 +13,157 @@ class PartyReportPage extends ConsumerStatefulWidget {
 
 class _PartyReportPageState extends ConsumerState<PartyReportPage> {
   bool _loading = false;
+  List<Map<String, dynamic>> _summaryList = [];
+  List<String> _partyNames = [];
+  String _selectedParty = 'All';
 
-  Future<void> _onGeneratePdfPressed() async {
-    setState(() {
-      _loading = true;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchSummaryList();
+  }
 
+  Future<void> _fetchSummaryList() async {
     final summaryList =
         await dbLending.getActiveLendingSummaryWithCollections();
+    setState(() {
+      _summaryList = summaryList;
+      _partyNames = [
+        'All',
+        ...{for (var s in summaryList) (s['PartyName'] ?? '').toString()}
+      ];
+    });
+  }
+
+  Future<void> _onGeneratePdfPressed() async {
+    setState(() => _loading = true);
 
     final financeName = ref.watch(financeProvider);
 
-    await generatePartyReportPdf(summaryList, financeName);
+    final filteredList = _selectedParty == 'All'
+        ? _summaryList
+        : _summaryList
+            .where((s) => (s['PartyName'] ?? '') == _selectedParty)
+            .toList();
 
-    setState(() {
-      _loading = false;
-    });
+    await generatePartyReportPdf(filteredList, financeName);
+
+    setState(() => _loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Active Parties Report'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Descriptive Header
-            Text(
-              '📋 Your Lending Diary in One Place',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.primaryColorDark,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('📄 Party-wise Lending Report'),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '📋 Lending Summary',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.primaryColorDark,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              Text(
+                'View detailed lending and collection history by party. '
+                'Select a party or generate the full report.',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
 
-            // Description Paragraph
-            Text(
-              'This report shows all your active parties with their transaction history. '
-              'It is just like your diary — tracking how much was given, when it was lent, the due dates, '
-              'and how the money is coming back through collections. '
-              'You can generate a professional-looking PDF and save or share it anytime.',
-              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 16),
-              textAlign: TextAlign.justify,
-            ),
-
-            const Spacer(),
-
-            // Generate Button
-            _loading
-                ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton.icon(
-                    icon: const Icon(Icons.download),
-                    label: const Text(
-                      "Download & Save PDF",
-                      style: TextStyle(fontSize: 16),
+              // Dropdown Section
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.shade100),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Select Party', style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    DropdownButton<String>(
+                      value: _selectedParty,
+                      isExpanded: true,
+                      items: _partyNames
+                          .map((name) => DropdownMenuItem(
+                                value: name,
+                                child: Text(name.isEmpty ? '(Unnamed)' : name),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() => _selectedParty = value);
+                        }
+                      },
                     ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 24),
-                      backgroundColor: theme.primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 4,
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Info Box
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '💡 This report helps you track each party’s total lent amount, due dates, and collections. '
+                  'Perfect for printing or sharing as a professional PDF summary.',
+                  style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),
+                  textAlign: TextAlign.justify,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Generate Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: _loading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.picture_as_pdf),
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      _loading ? 'Generating PDF...' : 'Download & Save PDF',
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    onPressed: _onGeneratePdfPressed,
                   ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: _loading ? null : _onGeneratePdfPressed,
+                ),
+              ),
 
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );

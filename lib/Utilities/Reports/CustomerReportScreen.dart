@@ -73,7 +73,7 @@ class ViewReportsPage extends StatelessWidget {
               context: context,
               icon: Icons.description,
               iconColor: Colors.blue,
-              title: "Daily Transaction Report",
+              title: "Daily Transaction Chart Report",
               subtitle: "Summary of all Daily transactions",
               onTap: () => Navigator.push(
                 context,

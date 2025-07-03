@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:vasool_diary/Utilities/CustomDatePicker.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:vasool_diary/Utilities/Reports/chartreport/chartpdf.dart';
+import 'package:vasool_diary/finance_provider.dart';
 
-class ReportFilterScreen extends StatefulWidget {
+class ReportFilterScreen extends ConsumerStatefulWidget {
   const ReportFilterScreen({super.key});
 
   @override
-  State<ReportFilterScreen> createState() => _ReportFilterScreenState();
+  ConsumerState<ReportFilterScreen> createState() => _ReportFilterScreenState();
 }
 
-class _ReportFilterScreenState extends State<ReportFilterScreen> {
+class _ReportFilterScreenState extends ConsumerState<ReportFilterScreen> {
   String _selectedPeriod = 'This Month';
   final TextEditingController _fromDateController = TextEditingController();
   final TextEditingController _toDateController = TextEditingController();
@@ -19,6 +22,7 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
   bool _showCredit = true;
   bool _showChart = false;
   int _currentWeekIndex = 0;
+  late final String financeName;
 
   // 1. Add a loading state
   bool _isLoading = false;
@@ -26,6 +30,7 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
   @override
   void initState() {
     super.initState();
+    financeName = ref.read(financeProvider);
     _setDefaultDates();
     _fetchAndShowChart();
   }
@@ -128,7 +133,7 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
                     );
                   }),
                   titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
+                    leftTitles: const AxisTitles(
                       sideTitles:
                           SideTitles(showTitles: true, reservedSize: 40),
                     ),
@@ -150,10 +155,10 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
                         },
                       ),
                     ),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                   ),
                   barTouchData: BarTouchData(
                     enabled: false,
@@ -164,12 +169,19 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Text(
+        const Text(
           "Summary for Selected Range:",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         Text("Total Credit: ₹${totalCredit.toStringAsFixed(2)}"),
         Text("Total Debit : ₹${totalDebit.toStringAsFixed(2)}"),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.picture_as_pdf),
+          label: const Text('Download PDF'),
+          onPressed: _chartData.isEmpty
+              ? null
+              : () => generateChartPdf(_chartData, financeName),
+        ),
       ],
     );
   }
@@ -426,4 +438,6 @@ class _ReportFilterScreenState extends State<ReportFilterScreen> {
     );
   }
 // ...existing code...
+
+  // Dummy implementation for PDF generation
 }

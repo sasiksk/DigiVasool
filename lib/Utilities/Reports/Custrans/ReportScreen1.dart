@@ -406,7 +406,7 @@ class _ReportScreen1State extends ConsumerState<ReportScreen1> {
                           decoration: BoxDecoration(
                             color: isEven ? Colors.grey[200] : Colors.white,
                             borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
+                            boxShadow: const [
                               BoxShadow(
                                 color: Colors.black12,
                                 blurRadius: 4,
@@ -424,7 +424,7 @@ class _ReportScreen1State extends ConsumerState<ReportScreen1> {
                                   flex: 3,
                                   child: Text(
                                     entry.partyName,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),
@@ -434,7 +434,7 @@ class _ReportScreen1State extends ConsumerState<ReportScreen1> {
                                   child: Text(
                                     '\u20B9${entry.amtGiven + entry.profit}',
                                     textAlign: TextAlign.right,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.green,
                                         fontWeight: FontWeight.w500),
                                   ),
@@ -444,7 +444,7 @@ class _ReportScreen1State extends ConsumerState<ReportScreen1> {
                                   child: Text(
                                     '\u20B9${entry.amtCollected}',
                                     textAlign: TextAlign.right,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.blue,
                                         fontWeight: FontWeight.w500),
                                   ),

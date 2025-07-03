@@ -1,446 +1,179 @@
+import 'dart:io';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:open_file/open_file.dart';
 
 Future<void> generatePartyReportPdf(
     List<Map<String, dynamic>> summaryList, String financeName) async {
   final pdf = pw.Document();
-  final String today = DateFormat('dd-MM-yyyy').format(DateTime.now());
+  final today = DateFormat('dd-MM-yyyy').format(DateTime.now());
+
   pdf.addPage(
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
-      margin: pw.EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-      theme: pw.ThemeData.withFont(
-        base: await PdfGoogleFonts.robotoRegular(),
-        bold: await PdfGoogleFonts.robotoBold(),
-      ),
+      margin: const pw.EdgeInsets.all(24),
       build: (pw.Context context) {
         return [
-          pw.Center(
-            child: pw.Container(
-              padding:
-                  const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 24),
-              decoration: pw.BoxDecoration(
-                color: PdfColors.blue700,
-                borderRadius: pw.BorderRadius.circular(6),
-              ),
-              child: pw.Text(
-                financeName,
-                style: pw.TextStyle(
-                  color: PdfColors.white,
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ),
-          pw.SizedBox(height: 10),
-          // Account Statement on Date
-          pw.Center(
-            child: pw.Text(
-              'Account Statement on Date ($today)',
-              style: pw.TextStyle(
-                fontSize: 13,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.black,
-              ),
-            ),
-          ),
-          pw.SizedBox(height: 18), // Report Header
           pw.Center(
             child: pw.Column(
               children: [
                 pw.Text(
-                  'ACTIVE PARTIES REPORT',
+                  financeName,
                   style: pw.TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: pw.FontWeight.bold,
-                    color: PdfColors.blue800,
-                    letterSpacing: 0.8,
+                    color: PdfColors.teal800,
                   ),
                 ),
-                pw.SizedBox(height: 4),
+                pw.SizedBox(height: 6),
                 pw.Text(
-                  DateFormat('dd MMMM yyyy').format(DateTime.now()),
-                  style: const pw.TextStyle(
-                    fontSize: 10,
-                    color: PdfColors.grey600,
+                  'Account Statement on $today',
+                  style: pw.TextStyle(
+                    fontSize: 12,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.grey800,
                   ),
                 ),
+                pw.SizedBox(height: 16),
               ],
             ),
           ),
-          pw.SizedBox(height: 20),
-          pw.Divider(height: 1, thickness: 1, color: PdfColors.blue200),
-          pw.SizedBox(height: 15),
-
-          // Parties List
-          ...summaryList.map((summary) {
-            final collections =
-                summary['Collections'] as List<Map<String, dynamic>>;
-            final partyName =
-                summary['PartyName']?.toString() ?? 'Unnamed Party';
+          ...summaryList.expand((summary) {
+            final partyName = summary['PartyName']?.toString() ?? '';
             final totalGiven = summary['TotalGiven']?.toString() ?? '0.00';
-            final lentDateRaw = summary['LentDate'];
-            final lentDate = (lentDateRaw != null &&
-                    lentDateRaw.toString().isNotEmpty)
-                ? DateFormat('dd-MM-yyyy').format(DateTime.parse(lentDateRaw))
-                : 'N/A';
-            final dueDays = summary['DueDays']?.toString() ?? '0';
             final amtCollected = summary['AmtCollected']?.toString() ?? '0.00';
+            final lentDateRaw = summary['LentDate']?.toString() ?? '';
+            final dueDays = summary['DueDays']?.toString() ?? '0';
             final dueDate = summary['DueDate']?.toString() ?? 'N/A';
+            final balance = (double.tryParse(totalGiven) ?? 0) -
+                (double.tryParse(amtCollected) ?? 0);
 
-            final totalGivenVal = double.tryParse(totalGiven) ?? 0;
-            final amtCollectedVal = double.tryParse(amtCollected) ?? 0;
-            final balance =
-                (totalGivenVal - amtCollectedVal).toStringAsFixed(2);
-            final isOverdue =
-                DateTime.tryParse(dueDate)?.isBefore(DateTime.now()) ?? false;
+            String lentDateStr = 'N/A';
+            if (lentDateRaw.isNotEmpty) {
+              try {
+                lentDateStr = DateFormat('dd-MM-yyyy')
+                    .format(DateFormat('yyyy-MM-dd').parse(lentDateRaw));
+              } catch (_) {}
+            }
 
-            // Party Information Card
-            return pw.Container(
-              margin: const pw.EdgeInsets.only(bottom: 20),
-              decoration: pw.BoxDecoration(
-                color: PdfColors.grey50,
-                borderRadius: pw.BorderRadius.circular(6),
-                border: pw.Border.all(
-                  color: isOverdue ? PdfColors.red200 : PdfColors.grey300,
-                  width: 0.8,
+            final collections =
+                summary['Collections'] as List<Map<String, dynamic>>? ?? [];
+
+            return [
+              pw.Container(
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey400),
+                  borderRadius: pw.BorderRadius.circular(6),
+                  color: PdfColors.grey100,
                 ),
-                boxShadow: const [
-                  pw.BoxShadow(
-                    color: PdfColors.grey300,
-                    blurRadius: 2,
-                    offset: PdfPoint(0, 1),
-                  )
-                ],
-              ),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  // Party Header
-                  pw.Container(
-                    padding: const pw.EdgeInsets.all(10),
-                    decoration: pw.BoxDecoration(
-                      color: isOverdue ? PdfColors.red50 : PdfColors.blue50,
-                      borderRadius: const pw.BorderRadius.only(
-                        topLeft: pw.Radius.circular(6),
-                        topRight: pw.Radius.circular(6),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Party: $partyName',
+                      style: pw.TextStyle(
+                        fontSize: 13,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.black,
                       ),
                     ),
-                    child: pw.Row(
-                      children: [
-                        pw.Expanded(
-                          child: pw.Text(
-                            partyName,
-                            style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                              fontSize: 14,
-                              color: isOverdue
-                                  ? PdfColors.red800
-                                  : PdfColors.blue800,
-                            ),
-                          ),
-                        ),
-                        if (isOverdue)
-                          pw.Container(
-                            padding: const pw.EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: pw.BoxDecoration(
-                              color: PdfColors.red500,
-                              borderRadius: pw.BorderRadius.circular(12),
-                            ),
-                            child: pw.Text(
-                              'OVERDUE',
-                              style: pw.TextStyle(
-                                fontSize: 8,
-                                color: PdfColors.white,
-                                fontWeight: pw.FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-
-                  // Party Details
-                  pw.Container(
-                    padding: const pw.EdgeInsets.all(12),
-                    child: pw.Table(
-                      columnWidths: {
-                        0: const pw.FlexColumnWidth(1.5),
-                        1: const pw.FlexColumnWidth(1.5),
-                        2: const pw.FlexColumnWidth(1.5),
-                        3: const pw.FlexColumnWidth(1.5),
-                        4: const pw.FlexColumnWidth(1.5),
-                        5: const pw.FlexColumnWidth(1.5),
-                      },
-                      children: [
-                        pw.TableRow(
-                          decoration: const pw.BoxDecoration(
-                            border: pw.Border(
-                              bottom: pw.BorderSide(
-                                color: PdfColors.grey200,
-                                width: 0.5,
-                              ),
-                            ),
-                          ),
-                          children: [
-                            _buildDetailCell('Amount Given', '₹$totalGiven'),
-                            _buildDetailCell(
-                                'Amount Collected', '₹$amtCollected'),
-                            _buildDetailCell('Balance', '₹$balance'),
-                            _buildDetailCell('Lent Date', lentDate),
-                            _buildDetailCell('Due Days', '$dueDays days'),
-                            _buildDetailCell('Due Date', dueDate),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Collections Table Header
-                  pw.Container(
-                    padding: const pw.EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
-                    color: PdfColors.blue700,
-                    child: pw.Row(
-                      children: List.generate(6, (pairIndex) {
-                        return pw.Expanded(
-                          flex: 2,
-                          child: pw.Row(
-                            children: [
-                              pw.Expanded(
-                                child: pw.Text(
-                                  'Date ${pairIndex + 1}',
-                                  textAlign: pw.TextAlign.center,
-                                  style: pw.TextStyle(
-                                    fontSize: 9,
-                                    color: PdfColors.white,
-                                    fontWeight: pw.FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              pw.Expanded(
-                                child: pw.Text(
-                                  'DrAmt ${pairIndex + 1}',
-                                  textAlign: pw.TextAlign.center,
-                                  style: pw.TextStyle(
-                                    fontSize: 9,
-                                    color: PdfColors.white,
-                                    fontWeight: pw.FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-
-                  // Collections Table
-                  if (collections.isNotEmpty)
-                    ..._buildCollectionRows(collections, rows: 15)
-                  else
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 15),
-                      child: pw.Center(
-                        child: pw.Text(
-                          'No collection records available',
-                          style: pw.TextStyle(
-                            fontSize: 10,
-                            color: PdfColors.grey500,
-                            fontStyle: pw.FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Summary
-                  pw.Container(
-                    padding: const pw.EdgeInsets.all(10),
-                    decoration: const pw.BoxDecoration(
-                      color: PdfColors.grey100,
-                      borderRadius: pw.BorderRadius.only(
-                        bottomLeft: pw.Radius.circular(6),
-                        bottomRight: pw.Radius.circular(6),
-                      ),
-                    ),
-                    child: pw.Row(
+                    pw.SizedBox(height: 6),
+                    pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
+                        pw.Text('Given: Rs. $totalGiven'),
+                        pw.Text('Collected: Rs. $amtCollected'),
                         pw.Text(
-                          'Total Collections: ${collections.length}',
+                          'Balance: Rs. ${balance.toStringAsFixed(2)}',
                           style: pw.TextStyle(
-                            fontSize: 10,
                             fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.grey700,
-                          ),
-                        ),
-                        pw.Text(
-                          'Report Generated: ${DateFormat('dd-MMM-yy HH:mm').format(DateTime.now())}',
-                          style: const pw.TextStyle(
-                            fontSize: 9,
-                            color: PdfColors.grey600,
+                            color: PdfColors.red800,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    pw.SizedBox(height: 4),
+                    pw.Row(
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        pw.Text('Lent Date: $lentDateStr'),
+                        pw.Text('Due Days: $dueDays'),
+                        pw.Text('Due Date: $dueDate'),
+                      ],
+                    ),
+                    pw.SizedBox(height: 8),
+                    if (collections.isNotEmpty)
+                      pw.Table.fromTextArray(
+                        headers: List.generate(5, (i) => ['Date', 'DrAmt'])
+                            .expand((x) => x)
+                            .toList(),
+                        data: () {
+                          List<List<String>> rows = [];
+                          for (int i = 0; i < collections.length; i += 5) {
+                            final chunk = collections.skip(i).take(5).toList();
+                            List<String> row = [];
+                            for (var entry in chunk) {
+                              final dateStr = entry['Date']?.toString() ?? '';
+                              String formattedDate = '-';
+                              if (dateStr.isNotEmpty) {
+                                try {
+                                  formattedDate = DateFormat('dd-MM-yy').format(
+                                    DateFormat('yyyy-MM-dd').parse(dateStr),
+                                  );
+                                } catch (_) {}
+                              }
+                              final drAmt = entry['DrAmt']?.toString() ?? '-';
+                              row.add(formattedDate);
+                              row.add(drAmt);
+                            }
+                            while (row.length < 10) {
+                              row.add('');
+                            }
+                            rows.add(row);
+                          }
+                          return rows;
+                        }(),
+                        headerStyle: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 9,
+                          color: PdfColors.white,
+                        ),
+                        cellStyle: pw.TextStyle(fontSize: 9),
+                        cellAlignment: pw.Alignment.center,
+                        headerDecoration:
+                            pw.BoxDecoration(color: PdfColors.teal),
+                        border: pw.TableBorder.all(
+                            color: PdfColors.grey, width: 0.4),
+                        columnWidths: {
+                          for (int i = 0; i < 10; i++)
+                            i: const pw.FlexColumnWidth(1),
+                        },
+                      )
+                    else
+                      pw.Text(
+                        'No collections.',
+                        style: pw.TextStyle(
+                          fontSize: 9,
+                          color: PdfColors.grey600,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            );
+              pw.SizedBox(height: 12),
+            ];
           }),
         ];
       },
     ),
   );
 
-  await Printing.layoutPdf(
-    onLayout: (PdfPageFormat format) async => pdf.save(),
-  );
-}
-
-// Helper function to create detail cells
-pw.Widget _buildDetailCell(String label, String value) {
-  return pw.Container(
-    padding: const pw.EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          label,
-          style: pw.TextStyle(
-            fontSize: 9,
-            color: PdfColors.grey600,
-            fontWeight: pw.FontWeight.bold,
-          ),
-        ),
-        pw.Text(
-          value,
-          style: pw.TextStyle(
-            fontSize: 10,
-            fontWeight: pw.FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-// Build collection rows with alternating colors
-List<pw.Widget> _buildCollectionRows(
-  List<Map<String, dynamic>> collections, {
-  int rows = 15,
-  int pairsPerRow = 6,
-}) {
-  final widgets = <pw.Widget>[];
-  final totalCells = rows * pairsPerRow;
-
-  for (int i = 0; i < rows; i++) {
-    final rowWidgets = <pw.Widget>[];
-    bool hasData = false;
-
-    for (int j = 0; j < pairsPerRow; j++) {
-      final index = i * pairsPerRow + j;
-      if (index < collections.length && index < totalCells) {
-        hasData = true;
-        final entry = collections[index];
-        final date =
-            entry['Date'] != null && entry['Date'].toString().isNotEmpty
-                ? DateFormat('dd-MM-yy').format(DateTime.parse(entry['Date']))
-                : '-';
-        final drAmt = entry['DrAmt']?.toString() ?? '-';
-
-        rowWidgets.add(
-          pw.Expanded(
-            flex: 2,
-            child: pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey200, width: 0.3),
-              ),
-              child: pw.Row(
-                children: [
-                  pw.Expanded(
-                    child: pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                      color: PdfColors.grey50,
-                      child: pw.Text(
-                        date,
-                        textAlign: pw.TextAlign.center,
-                        style: pw.TextStyle(
-                          fontSize: 8,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  pw.Expanded(
-                    child: pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                      child: pw.Text(
-                        drAmt,
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(fontSize: 8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      } else {
-        rowWidgets.add(
-          pw.Expanded(
-            flex: 2,
-            child: pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey200, width: 0.3),
-              ),
-              child: pw.Row(
-                children: [
-                  pw.Expanded(
-                    child: pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                      color: PdfColors.grey50,
-                      child: pw.Text(
-                        '-',
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(fontSize: 8),
-                      ),
-                    ),
-                  ),
-                  pw.Expanded(
-                    child: pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(vertical: 3),
-                      child: pw.Text(
-                        '-',
-                        textAlign: pw.TextAlign.center,
-                        style: const pw.TextStyle(fontSize: 8),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    if (hasData) {
-      widgets.add(
-        pw.Container(
-          color: i.isEven ? PdfColors.white : PdfColors.grey50,
-          child: pw.Row(children: rowWidgets),
-        ),
-      );
-    }
-  }
-
-  return widgets;
+  final formattedDate = DateFormat('ddMMyy_HHmmss').format(DateTime.now());
+  final output = await path_provider.getTemporaryDirectory();
+  final file = File("${output.path}/AccSta_$formattedDate.pdf");
+  await file.writeAsBytes(await pdf.save());
+  await OpenFile.open(file.path);
 }
