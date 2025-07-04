@@ -11,7 +11,16 @@ class PartyPendingDetailsScreen extends StatefulWidget {
       _PartyPendingDetailsScreenState();
 }
 
-enum PendingSort { highToLow, lowToHigh }
+// Replace your enum with:
+// Replace your enum with:
+enum PendingSort {
+  highToLow,
+  lowToHigh,
+  dueDaysHighToLow,
+  dueDaysLowToHigh,
+  daysRemHighToLow,
+  daysRemLowToHigh,
+}
 
 class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
   List<Map<String, dynamic>> _pendingList = [];
@@ -53,15 +62,74 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
     }
 
     tempList.sort((a, b) {
-      final aAmt = ((a['amtgiven'] as num?) ?? 0) +
-          ((a['profit'] as num?) ?? 0) -
-          ((a['amtcollected'] as num?) ?? 0);
-      final bAmt = ((b['amtgiven'] as num?) ?? 0) +
-          ((b['profit'] as num?) ?? 0) -
-          ((b['amtcollected'] as num?) ?? 0);
-      return _sortOrder == PendingSort.highToLow
-          ? bAmt.compareTo(aAmt)
-          : aAmt.compareTo(bAmt);
+      double calcPendingPer(Map<String, dynamic> party) {
+        final amtGiven = (party['amtgiven'] as num?) ?? 0;
+        final profit = (party['profit'] as num?) ?? 0;
+        final amtCollected = (party['amtcollected'] as num?) ?? 0;
+        final dueDays = (party['duedays'] as int?) ?? 0;
+        final lentDateStr = party['Lentdate'] ?? party['lentdate'] ?? '';
+
+        final totalAmt = amtGiven + profit;
+        final perDayAmt =
+            (totalAmt > 0 && dueDays > 0) ? totalAmt / dueDays : 0;
+
+        int? daysOver;
+        if (lentDateStr.isNotEmpty) {
+          try {
+            daysOver = DateTime.now()
+                .difference(DateFormat('yyyy-MM-dd').parse(lentDateStr))
+                .inDays;
+          } catch (_) {
+            daysOver = null;
+          }
+        }
+        final daysPaid = perDayAmt != 0 ? amtCollected / perDayAmt : 0.0;
+
+        if (daysOver != null && daysOver > 0) {
+          return ((daysOver - daysPaid) / daysOver) * 100;
+        }
+        return 0.0;
+      }
+
+      final aPer = calcPendingPer(a);
+      final bPer = calcPendingPer(b);
+
+      final aDueDays = (a['duedays'] as int?) ?? 0;
+      final bDueDays = (b['duedays'] as int?) ?? 0;
+
+      int getDaysRem(Map<String, dynamic> party) {
+        final dueDays = (party['duedays'] as int?) ?? 0;
+        final lentDateStr = party['Lentdate'] ?? party['lentdate'] ?? '';
+        int? daysOver;
+        if (lentDateStr.isNotEmpty) {
+          try {
+            daysOver = DateTime.now()
+                .difference(DateFormat('yyyy-MM-dd').parse(lentDateStr))
+                .inDays;
+          } catch (_) {
+            daysOver = null;
+          }
+        }
+        return (dueDays != 0 && daysOver != null) ? dueDays - daysOver : 0;
+      }
+
+      final aDaysRem = getDaysRem(a);
+      final bDaysRem = getDaysRem(b);
+
+      switch (_sortOrder) {
+        case PendingSort.highToLow:
+          return bPer.compareTo(aPer);
+        case PendingSort.lowToHigh:
+          return aPer.compareTo(bPer);
+        case PendingSort.dueDaysHighToLow:
+          return bDueDays.compareTo(aDueDays);
+        case PendingSort.dueDaysLowToHigh:
+          return aDueDays.compareTo(bDueDays);
+        case PendingSort.daysRemHighToLow:
+          return bDaysRem.compareTo(aDaysRem);
+        case PendingSort.daysRemLowToHigh:
+          return aDaysRem.compareTo(bDaysRem);
+      }
     });
 
     _filteredList = tempList;
@@ -184,16 +252,26 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
             icon: const Icon(Icons.arrow_drop_down),
             isDense: true,
             style: theme.textTheme.bodyMedium,
+            // ...existing code...
             items: const [
               DropdownMenuItem(
                 value: PendingSort.highToLow,
-                child: Text('High Pending First'),
+                child: Text('Pending % High to Low'),
               ),
               DropdownMenuItem(
                 value: PendingSort.lowToHigh,
-                child: Text('Low Pending First'),
+                child: Text('Pending % Low to High'),
+              ),
+              DropdownMenuItem(
+                value: PendingSort.daysRemHighToLow,
+                child: Text('Days Rem High to Low'),
+              ),
+              DropdownMenuItem(
+                value: PendingSort.daysRemLowToHigh,
+                child: Text('Days Rem Low to High'),
               ),
             ],
+// ...existing code...
             onChanged: (value) => value != null ? _onSortChanged(value) : null,
           ),
         ),
@@ -269,7 +347,9 @@ class _PartyCardState extends State<PartyCard> {
     final daysPaid = perDayAmt != 0 ? amtCollected / perDayAmt : 0.0;
     final pendingDays =
         daysRem > 0 ? ((daysOver ?? 0) - daysPaid) : ((dueDays) - daysPaid);
-
+    final pendingPer = (daysOver != null && daysOver > 0)
+        ? ((daysOver - daysPaid) / daysOver) * 100
+        : 0.0;
     final isOverdue = daysRem != null && daysRem < 0;
     final progress = totalAmt > 0 ? amtCollected / totalAmt : 0.0;
 
@@ -286,7 +366,7 @@ class _PartyCardState extends State<PartyCard> {
               children: [
                 Expanded(
                   child: Text(
-                    party['PartyName'] ?? 'Unknown Party',
+                    '${party['PartyName'] ?? 'Unknown Party'}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -317,6 +397,7 @@ class _PartyCardState extends State<PartyCard> {
                   pendingDays.abs().toStringAsFixed(1),
                   pendingDays < 0 ? Colors.orange : Colors.red,
                 ),
+                const SizedBox(height: 8),
                 IconButton(
                   icon: Icon(
                     _expanded ? Icons.expand_less : Icons.expand_more,
