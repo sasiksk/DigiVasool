@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/Reports/PendingReport/PendingFollowupTab.dart';
 
 class PartyPendingDetailsScreen extends StatefulWidget {
   const PartyPendingDetailsScreen({super.key});
@@ -11,8 +12,6 @@ class PartyPendingDetailsScreen extends StatefulWidget {
       _PartyPendingDetailsScreenState();
 }
 
-// Replace your enum with:
-// Replace your enum with:
 enum PendingSort {
   highToLow,
   lowToHigh,
@@ -22,17 +21,26 @@ enum PendingSort {
   daysRemLowToHigh,
 }
 
-class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
+class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen>
+    with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> _pendingList = [];
   List<Map<String, dynamic>> _filteredList = [];
   bool _isLoading = true;
   String _searchText = '';
   PendingSort _sortOrder = PendingSort.highToLow;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _fetchPendingParties();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchPendingParties() async {
@@ -157,56 +165,76 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pending Parties',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [theme.primaryColor, theme.primaryColorDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Pending Parties',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [theme.primaryColor, theme.primaryColorDark],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
+          bottom: const TabBar(
+            labelColor: Colors.white, // Selected tab text color
+            unselectedLabelColor: Colors.grey, // Unselected tab text color
+            indicatorColor: Colors.white, // Optional: underline color
+            tabs: [
+              Tab(text: 'Overall Pending'),
+              Tab(text: 'Day Wise Pending'),
+            ],
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        body: TabBarView(
           children: [
-            // Search Bar
-            _buildSearchBar(theme),
-            const SizedBox(height: 16),
+            // Tab 1: Your existing content
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  // Search Bar
+                  _buildSearchBar(theme),
+                  const SizedBox(height: 16),
 
-            // Sorting Controls
-            _buildSortingControls(theme),
-            const SizedBox(height: 16),
+                  // Sorting Controls
+                  _buildSortingControls(theme),
+                  const SizedBox(height: 16),
 
-            // Party List
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _filteredList.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.assignment,
-                                  size: 64, color: theme.disabledColor),
-                              const SizedBox(height: 16),
-                              Text(
-                                "No pending parties found",
-                                style: theme.textTheme.titleMedium
-                                    ?.copyWith(color: theme.disabledColor),
-                              ),
-                            ],
-                          ),
-                        )
-                      : _buildPartyList(),
+                  // Party List
+                  Expanded(
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _filteredList.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.assignment,
+                                        size: 64, color: theme.disabledColor),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      "No pending parties found",
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                              color: theme.disabledColor),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : _buildPartyList(),
+                  ),
+                ],
+              ),
             ),
+            // Tab 2: Empty for now
+            const PendingFollowupTab(),
           ],
         ),
       ),
@@ -252,7 +280,6 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
             icon: const Icon(Icons.arrow_drop_down),
             isDense: true,
             style: theme.textTheme.bodyMedium,
-            // ...existing code...
             items: const [
               DropdownMenuItem(
                 value: PendingSort.highToLow,
@@ -271,7 +298,6 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen> {
                 child: Text('Days Rem Low to High'),
               ),
             ],
-// ...existing code...
             onChanged: (value) => value != null ? _onSortChanged(value) : null,
           ),
         ),

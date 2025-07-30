@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/CollectionEntryScreen.dart';
+
+import 'package:vasool_diary/Screens/Main/BulkInsert/bulk_insert_screen.dart';
 import 'package:vasool_diary/Screens/TableDetailsScreen.dart';
-import 'package:vasool_diary/Screens/UtilScreens/bulk_insert_screen.dart';
-import 'package:vasool_diary/firebase_backup_screen.dart';
-import 'package:vasool_diary/google_drive_backup_screen.dart';
+
 import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
 import 'package:vasool_diary/ContactUs.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
@@ -15,9 +16,9 @@ Widget buildDrawer(BuildContext context) {
   return Drawer(
     child: Column(
       children: [
-        // Gradient Header
+        // Gradient Header with user info
         Container(
-          height: 150,
+          padding: const EdgeInsets.only(top: 40, bottom: 20),
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -25,22 +26,42 @@ Widget buildDrawer(BuildContext context) {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-          ),
-          child: const Center(
-            child: Text(
-              'Menu',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
             ),
           ),
+          child: const Column(
+            children: [
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Welcome!',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                'Vasool Diary',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
         ),
+
         // Drawer Items
         Expanded(
           child: ListView(
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.symmetric(vertical: 10),
             children: [
               _buildDrawerItem(
                 context,
@@ -48,17 +69,18 @@ Widget buildDrawer(BuildContext context) {
                 title: 'Home',
                 onTap: () => _navigateTo(context, const HomeScreen()),
               ),
-              /* _buildDrawerItem(
+              /*_buildDrawerItem(
                 context,
                 icon: Icons.insert_drive_file,
-                title: 'Table Details',
+                title: 'Bulk Insert',
                 onTap: () => _navigateTo(context, const TableDetailsScreen()),
               ),*/
               _buildDrawerItem(
                 context,
-                icon: Icons.insert_drive_file,
-                title: 'Bulk Insert',
-                onTap: () => _navigateTo(context, const BulkInsertScreen()),
+                icon: Icons.monetization_on,
+                title: 'Collection Entry',
+                onTap: () =>
+                    _navigateTo(context, const CollectionEntryScreen()),
               ),
               _buildDrawerItem(
                 context,
@@ -66,18 +88,6 @@ Widget buildDrawer(BuildContext context) {
                 title: 'Back Up',
                 onTap: () => _navigateTo(context, const DownloadDBScreen()),
               ),
-              /*_buildDrawerItem(
-                context,
-                icon: Icons.cloud_upload,
-                title: 'Back Up - Firebase',
-                onTap: () => _navigateTo(context, const FirebaseBackupScreen()),
-              ),
-              _buildDrawerItem(
-                context,
-                icon: Icons.drive_folder_upload,
-                title: 'Back Up - Google Drive',
-                onTap: () => _navigateTo(context, GoogleDriveBackupScreen()),
-              ),*/
               _buildDrawerItem(
                 context,
                 icon: Icons.restore,
@@ -88,8 +98,9 @@ Widget buildDrawer(BuildContext context) {
                 context,
                 icon: Icons.picture_as_pdf,
                 title: 'View Reports',
-                onTap: () => _navigateTo(context, ViewReportsPage()),
+                onTap: () => _navigateTo(context, const ViewReportsPage()),
               ),
+              const Divider(thickness: 1),
               _buildDrawerItem(
                 context,
                 icon: Icons.restore_from_trash,
@@ -116,31 +127,36 @@ Widget buildDrawer(BuildContext context) {
   );
 }
 
-// Reusable Drawer Item Widget
 Widget _buildDrawerItem(
   BuildContext context, {
   required IconData icon,
   required String title,
   required VoidCallback onTap,
 }) {
-  return ListTile(
-    leading: Icon(icon, color: Colors.teal.shade900),
-    title: Text(
-      title,
-      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-    ),
+  return InkWell(
     onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.teal.shade700),
+          const SizedBox(width: 20),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
+// Reusable Drawer Item Widget
+
 // Navigation Helper Function
-void _navigateTo(BuildContext context, Widget screen) {
-  Navigator.pop(context);
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => screen),
-  );
-}
 
 // Reset Confirmation Dialog
 void _showResetConfirmationDialog(BuildContext context) {
@@ -184,5 +200,13 @@ void _showResetConfirmationDialog(BuildContext context) {
         ],
       );
     },
+  );
+}
+
+void _navigateTo(BuildContext context, Widget screen) {
+  Navigator.pop(context);
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => screen),
   );
 }

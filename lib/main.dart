@@ -64,7 +64,7 @@ final ThemeData appTheme = ThemeData(
       fontFamily: GoogleFonts.tinos().fontFamily,
     ),
   ),
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(15),
     ),

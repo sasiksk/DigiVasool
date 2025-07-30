@@ -461,7 +461,8 @@ class dbLending {
         'profit',
         'amtcollected',
         'duedays',
-        'status'
+        'status',
+        'PartyPhnone'
       ],
       where: 'LineName = ? AND status = ?',
       whereArgs: [lineName, 'active'],

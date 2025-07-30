@@ -1,7 +1,6 @@
 import 'package:vasool_diary/Screens/Main/IntroductionDcreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../finance_provider.dart';
@@ -14,219 +13,329 @@ class SplashScreen extends ConsumerStatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   final TextEditingController _controller = TextEditingController();
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  BoxDecoration _gradientBackground() {
-    return const BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 241, 245, 245),
-          Color.fromARGB(255, 95, 109, 101)
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    );
-  }
-
-  InputDecoration _textFieldDecoration() {
-    return InputDecoration(
-      labelText: 'Enter Name',
-      labelStyle: const TextStyle(
-        color: Colors.blue,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-      filled: true,
-      fillColor: const Color.fromARGB(255, 236, 238, 237),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Colors.white),
-      ),
-      prefixIcon: const Icon(Icons.account_balance, color: Colors.blue),
-    );
-  }
-
-  ButtonStyle _elevatedButtonStyle() {
-    return ElevatedButton.styleFrom(
-      foregroundColor: Colors.white,
-      backgroundColor: Colors.blue.shade900,
-      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(25),
-      ),
-      elevation: 5,
-    );
-  }
-
-  void _showAlertDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color.fromARGB(255, 210, 240, 223),
-        title: Text(title),
-        content: Text(
-          content,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            fontFamily: GoogleFonts.tinos().fontFamily,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Container(
-          decoration: _gradientBackground(),
-          padding: const EdgeInsets.all(20),
-          child: Center(
-            child: Column(
+          decoration: _buildGradientBackground(),
+          child: Stack(
+            children: [
+              _buildStaticParticles(),
+              SafeArea(
+                child: Column(
+                  children: [
+                    const Spacer(flex: 2),
+                    _buildLogo(),
+                    const Spacer(flex: 1),
+                    _buildForm(),
+                    const Spacer(flex: 2),
+                    _buildBranding(),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _buildGradientBackground() {
+    return const BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          Color(0xFF667eea),
+          Color(0xFF764ba2),
+          Color(0xFF6B73FF),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        stops: [0.0, 0.5, 1.0],
+      ),
+    );
+  }
+
+  Widget _buildStaticParticles() {
+    return Stack(
+      children: [
+        // Static decorative particles
+        ...List.generate(15, (index) {
+          return Positioned(
+            top: (index * 50.0) % MediaQuery.of(context).size.height,
+            left: (index * 80.0) % MediaQuery.of(context).size.width,
+            child: Container(
+              width: 4 + (index % 3) * 2,
+              height: 4 + (index % 3) * 2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          );
+        }),
+        // Larger decorative circles
+        Positioned(
+          top: 150,
+          right: 50,
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.03),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.08),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 200,
+          left: 30,
+          child: Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.03),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.08),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Colors.white, Color(0xFFF0F8FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.3),
+            spreadRadius: 5,
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Image.asset(
+          'assets/intro_image.png',
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        children: [
+          Text(
+            'Welcome to Vasool Diary',
+            style: GoogleFonts.poppins(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                  blurRadius: 10,
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 30),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withOpacity(0.15),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: _controller,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              decoration: InputDecoration(
+                labelText: 'Enter Your Name',
+                labelStyle: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+                hintText: 'Your Organiztion name here...',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
+                prefixIcon: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Colors.white.withOpacity(0.8),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.transparent,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          _buildButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButton() {
+    return Container(
+      width: double.infinity,
+      height: 55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(27.5),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFF6B6B), Color(0xFFFFE66D), Color(0xFF4ECDC4)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF6B6B).withOpacity(0.4),
+            spreadRadius: 2,
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(27.5),
+          onTap: _handleSubmit,
+          child: Container(
+            alignment: Alignment.center,
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Spacer(),
-                ScaleTransition(
-                  scale: Tween(begin: 1.0, end: 1.2).animate(
-                    CurvedAnimation(
-                      parent: _animationController,
-                      curve: Curves.easeInOut,
-                    ),
-                  ),
-                  child: Image.asset(
-                    'assets/intro_image.png',
-                    width: 100,
-                    height: 100,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                  child: TextField(
-                    controller: _controller,
-                    decoration: _textFieldDecoration(),
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Colors.blueAccent,
-                          Colors.blue,
-                          Colors.lightBlueAccent
-                        ],
-                        stops: [0.2, 0.5, 0.9],
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(2),
-                    child: ElevatedButton(
-                      style: _elevatedButtonStyle(),
-                      onPressed: () async {
-                        if (_controller.text.isEmpty) {
-                          _showAlertDialog(
-                              context, 'Message', 'Kindly Enter Your Name');
-                        } else {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setBool('isFirstLaunch', false);
-                          ref
-                              .read(financeProvider.notifier)
-                              .saveFinanceName(_controller.text);
-
-                          // var manageExternalStorageStatus =
-                          //     await Permission.manageExternalStorage.request();
-                          // var storageStatus =
-                          //     await Permission.storage.request();
-                          // var status = await Permission.sms.status;
-                          // if (!status.isGranted) {
-                          //   status = await Permission.sms.request();
-                          // }
-                          // print('SMS Permission Status: $status');
-                          if (/*manageExternalStorageStatus.isGranted ||
-                              storageStatus.isGranted && status.isGranted*/
-                              1 == 1) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                            );
-                          } else {
-                            _showAlertDialog(context, 'Permission Required',
-                                'Storage permissions are required to proceed.');
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const IntroductionScreen()),
-                            );
-                          }
-                        }
-                      },
-                      child: Text(
-                        'OK',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.tinos().fontFamily,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
                 Text(
-                  'Sri Selva Vinayaga Software Solutions',
-                  style: GoogleFonts.tinos(
-                    textStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontStyle: FontStyle.italic,
-                    ),
+                  'Get Started',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(width: 10),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBranding() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.white.withOpacity(0.3)),
+          ),
+          child: Text(
+            'Sri Selva Vinayaga Software Solutions',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleSubmit() async {
+    if (_controller.text.isEmpty) {
+      _showDialog('Message', 'Please enter your name to continue');
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstLaunch', false);
+    ref.read(financeProvider.notifier).saveFinanceName(_controller.text);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+  void _showDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          content,
+          style: GoogleFonts.roboto(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF667eea),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('OK'),
+          ),
+        ],
       ),
     );
   }

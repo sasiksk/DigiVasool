@@ -26,13 +26,36 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
   @override
   void initState() {
     super.initState();
+
     _loadLineNames();
+  }
+
+  Future<void> showSmsNotSentDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Notice'),
+          content: const Text('SMS can\'t be sent through this entry.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _loadLineNames() async {
     final lineNames = await dbline.getLineNames();
     setState(() {
       _lineNames = lineNames;
+      showSmsNotSentDialog();
     });
   }
 
@@ -87,6 +110,7 @@ class _BulkInsertScreenState extends State<BulkInsertScreen> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
+                Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
             ),
