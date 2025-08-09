@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
+
+import 'package:vasool_diary/Screens/Main/BulkInsert/IndividualCollectionScreen.dart';
 import 'package:vasool_diary/Screens/Main/LineScreen.dart';
 import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
-import 'package:vasool_diary/Screens/Main/BulkInsert/bulk_insert_screen.dart';
+
 import 'package:vasool_diary/Utilities/AppBar.dart';
 import 'package:vasool_diary/Utilities/Reports/CustomerReportScreen.dart';
 import 'package:vasool_diary/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
@@ -480,7 +482,8 @@ class _ModernDashboardState extends ConsumerState<HomeScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => BulkInsertScreen()),
+                          builder: (context) =>
+                              const IndividualCollectionScreen()),
                     );
                   },
                 ),

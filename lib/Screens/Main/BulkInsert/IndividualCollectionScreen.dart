@@ -27,6 +27,8 @@ class _IndividualCollectionScreenState
   Map<int, bool> collectedStatus = {};
   Map<int, Map<String, dynamic>> collectionRecords = {};
   double totalCollected = 0.0;
+  TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> filteredLendingDetails = [];
 
   @override
   void initState() {
@@ -39,13 +41,37 @@ class _IndividualCollectionScreenState
     for (var controller in amountControllers.values) {
       controller.dispose();
     }
+    _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> showSmsNotSentDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Note'),
+          content: const Text(
+              'For Individual Collection Entry, Kindly Click Line Name -> Party Name ->You Got/Gave.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _loadLineNames() async {
     final lineNames = await dbline.getLineNames();
     setState(() {
       _lineNames = lineNames;
+      showSmsNotSentDialog();
     });
   }
 
@@ -55,6 +81,7 @@ class _IndividualCollectionScreenState
       setState(() {
         lendingDetails =
             details.where((detail) => detail['status'] == 'active').toList();
+        filteredLendingDetails = lendingDetails; // Initialize filtered list
         collectedStatus.clear();
         collectionRecords.clear();
         totalCollected = 0.0;
@@ -234,6 +261,21 @@ class _IndividualCollectionScreenState
     }
   }
 
+  void _filterParties(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredLendingDetails = lendingDetails;
+      } else {
+        filteredLendingDetails = lendingDetails
+            .where((party) => party['PartyName']
+                .toString()
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
   Widget _buildCompactPartyCard(Map<String, dynamic> partyDetail) {
     final balanceAmt = (partyDetail['amtgiven'] + partyDetail['profit']) -
         partyDetail['amtcollected'];
@@ -244,57 +286,68 @@ class _IndividualCollectionScreenState
 
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Padding(
-        padding: const EdgeInsets.all(6), // Reduced from 8 to 6
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Party Name Row
+            // First Row: Party Name and Balance
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Text(
                     partyDetail['PartyName'] ?? 'Unknown',
                     style: const TextStyle(
-                        fontSize: 13, // Reduced from 14 to 13
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (isCollected)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 1), // Reduced padding
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(6),
+                Row(
+                  children: [
+                    Text(
+                      'Balance: ₹${balanceAmt.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600),
                     ),
-                    child: const Text('✓',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 9)), // Reduced font size
-                  ),
+                    if (isCollected) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text('✓',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 2), // Reduced from 4 to 2
+            const SizedBox(height: 8),
 
-            // Balance Amount
-            Text(
-              'Balance: ₹${balanceAmt.toStringAsFixed(2)}',
-              style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.red,
-                  fontWeight: FontWeight.w500), // Reduced from 12 to 11
-            ),
-            const SizedBox(height: 4), // Reduced from 6 to 4
-
-            // Amount Input
+            // Second Row: Amount Input and Action Button
             Row(
               children: [
+                const Text(
+                  'Amount: ',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
+                ),
                 Expanded(
                   child: TextFormField(
                     controller: amountControllers[lenId] ??
@@ -303,23 +356,24 @@ class _IndividualCollectionScreenState
                     keyboardType: TextInputType.number,
                     enabled: !isCollected,
                     style: TextStyle(
-                        fontSize: 11, // Reduced from 12 to 11
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: isCollected ? Colors.grey : Colors.green),
                     decoration: const InputDecoration(
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 2), // Reduced padding
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       border: OutlineInputBorder(),
                       prefixText: '₹',
                     ),
                   ),
                 ),
-                const SizedBox(width: 3), // Reduced from 4 to 3
+                const SizedBox(width: 12),
 
-                // Action Button
+                // Action Button - Larger size
                 SizedBox(
-                  width: 55, // Reduced from 60 to 55
-                  height: 28, // Reduced from 32 to 28
+                  width: 80,
+                  height: 40,
                   child: ElevatedButton(
                     onPressed: isCollected
                         ? () => _undoCollection(partyDetail)
@@ -329,13 +383,12 @@ class _IndividualCollectionScreenState
                           isCollected ? Colors.orange : Colors.green,
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(4)), // Reduced from 6 to 4
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                     child: Icon(
                       isCollected ? Icons.undo : Icons.check,
                       color: Colors.white,
-                      size: 14, // Reduced from 16 to 14
+                      size: 20,
                     ),
                   ),
                 ),
@@ -351,47 +404,57 @@ class _IndividualCollectionScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Individual Collection'),
         backgroundColor: Colors.teal.shade900,
         elevation: 0,
+        title: const Text(
+          'Bulk Collection Entry',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             children: [
-              // Header Controls
+              // Header Controls - Single Card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
-                      // Line Dropdown
-                      DropdownButtonFormField<String>(
-                        decoration: const InputDecoration(
-                          labelText: 'Line Name',
-                          border: OutlineInputBorder(),
-                          isDense: true,
-                          contentPadding:
-                              EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                        ),
-                        value: _selectedLineName,
-                        items: _lineNames
-                            .map((lineName) => DropdownMenuItem(
-                                value: lineName, child: Text(lineName)))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedLineName = value;
-                          });
-                          if (value != null) _loadPartyNames(value);
-                        },
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Date and Total Row
+                      // First Row: Line Name and Date
                       Row(
                         children: [
+                          // Line Dropdown
+                          Expanded(
+                            flex: 3,
+                            child: DropdownButtonFormField<String>(
+                              decoration: const InputDecoration(
+                                labelText: 'Line Name',
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 10),
+                              ),
+                              value: _selectedLineName,
+                              items: _lineNames
+                                  .map((lineName) => DropdownMenuItem(
+                                      value: lineName, child: Text(lineName)))
+                                  .toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLineName = value;
+                                  _searchController.clear();
+                                });
+                                if (value != null) _loadPartyNames(value);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Date Field
                           Expanded(
                             flex: 2,
                             child: TextFormField(
@@ -409,11 +472,38 @@ class _IndividualCollectionScreenState
                               onTap: _selectDate,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Second Row: Search Party and Total
+                      Row(
+                        children: [
+                          // Search Field (smaller)
                           Expanded(
-                            flex: 1,
+                            flex: 3,
+                            child: SizedBox(
+                              height: 38,
+                              child: TextFormField(
+                                controller: _searchController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Search Party',
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 8, horizontal: 10),
+                                  prefixIcon: Icon(Icons.search, size: 18),
+                                ),
+                                style: const TextStyle(fontSize: 13),
+                                onChanged: _filterParties,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Total Amount
+                          Expanded(
+                            flex: 2,
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.purple),
                                 borderRadius: BorderRadius.circular(4),
@@ -421,7 +511,7 @@ class _IndividualCollectionScreenState
                               child: Text(
                                 'Total: ₹${totalCollected.toStringAsFixed(2)}',
                                 style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.purple),
                                 textAlign: TextAlign.center,
@@ -436,27 +526,23 @@ class _IndividualCollectionScreenState
               ),
               const SizedBox(height: 8),
 
-              // Party Cards Grid
+              // Party Cards List
               Expanded(
-                child: lendingDetails.isEmpty
-                    ? const Center(
+                child: filteredLendingDetails.isEmpty
+                    ? Center(
                         child: Text(
-                          'No active parties found.\nSelect a line to view parties.',
+                          lendingDetails.isEmpty
+                              ? 'No active parties found.\nSelect a line to view parties.'
+                              : 'No parties found matching your search.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                          style:
+                              const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       )
-                    : GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1.9, // Increased from 1.8 to 1.9
-                          crossAxisSpacing: 4,
-                          mainAxisSpacing: 4,
-                        ),
-                        itemCount: lendingDetails.length,
-                        itemBuilder: (context, index) =>
-                            _buildCompactPartyCard(lendingDetails[index]),
+                    : ListView.builder(
+                        itemCount: filteredLendingDetails.length,
+                        itemBuilder: (context, index) => _buildCompactPartyCard(
+                            filteredLendingDetails[index]),
                       ),
               ),
             ],

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vasool_diary/Screens/Main/BulkInsert/CollectionEntryScreen.dart';
-
-import 'package:vasool_diary/Screens/Main/BulkInsert/bulk_insert_screen.dart';
-import 'package:vasool_diary/Screens/TableDetailsScreen.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/IndividualCollectionScreen.dart';
 
 import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
 import 'package:vasool_diary/ContactUs.dart';
@@ -80,7 +77,7 @@ Widget buildDrawer(BuildContext context) {
                 icon: Icons.monetization_on,
                 title: 'Collection Entry',
                 onTap: () =>
-                    _navigateTo(context, const CollectionEntryScreen()),
+                    _navigateTo(context, const IndividualCollectionScreen()),
               ),
               _buildDrawerItem(
                 context,
