@@ -1,3 +1,4 @@
+import 'package:vasool_diary/Utilities/Reports/PendingReport/LastWeekPaymentScreen.dart';
 import 'package:vasool_diary/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:vasool_diary/Utilities/Reports/CusFullTrans/ReportScreen2.dart';
@@ -103,6 +104,7 @@ class ViewReportsPage extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const PartyReportPage()),
               ),
             ),
+
 // ...existing code...
           ],
         ),

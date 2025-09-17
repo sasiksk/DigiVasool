@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vasool_diary/Screens/Main/BulkInsert/IndividualCollectionScreen.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/EnhancedBulkInsertScreen.dart';
+
 import 'package:vasool_diary/Screens/Main/BulkInsert/bulk_insert_screen.dart';
 
 class CollectionEntryScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _CollectionEntryScreenState extends State<CollectionEntryScreen>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          IndividualCollectionScreen(),
+          EnhancedBulkInsertScreen(),
           BulkInsertScreen(),
         ],
       ),

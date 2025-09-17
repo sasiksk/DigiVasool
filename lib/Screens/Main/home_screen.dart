@@ -5,13 +5,15 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
 
-import 'package:vasool_diary/Screens/Main/BulkInsert/IndividualCollectionScreen.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/EnhancedBulkInsertScreen.dart';
+
 import 'package:vasool_diary/Screens/Main/LineScreen.dart';
 import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
 
 import 'package:vasool_diary/Utilities/AppBar.dart';
 import 'package:vasool_diary/Utilities/Reports/CustomerReportScreen.dart';
 import 'package:vasool_diary/Utilities/Reports/PendingReport/PartyPendingDetailsScreen.dart';
+import 'package:vasool_diary/Utilities/backup_helper.dart';
 import 'package:vasool_diary/Utilities/drawer.dart';
 import 'package:vasool_diary/Utilities/FloatingActionButtonWithText.dart';
 import 'package:vasool_diary/Screens/Main/linedetailScreen.dart';
@@ -59,6 +61,10 @@ class _ModernDashboardState extends ConsumerState<HomeScreen>
 
     loadData();
     _animationController.forward();
+
+    Future.delayed(const Duration(seconds: 3), () {
+      _checkDailyBackup();
+    });
   }
 
   @override
@@ -73,6 +79,65 @@ class _ModernDashboardState extends ConsumerState<HomeScreen>
       loadLineDetails(),
       loadCollectionAndGivenByDate(selectedDate),
     ]);
+  }
+
+  Future<void> _checkDailyBackup() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    final todayStr = DateFormat('yyyy-MM-dd').format(today);
+    final lastBackup = prefs.getString('last_backup_date');
+
+    // If backup already done today, return
+    if (lastBackup == todayStr) return;
+
+    // Show backup reminder dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.backup, color: Colors.orange, size: 28),
+            SizedBox(width: 8),
+            Text('Daily Backup Reminder'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.warning_amber, color: Colors.orange, size: 48),
+            SizedBox(height: 12),
+            Text(
+              'You haven\'t backed up your data today.\nWould you like to create a backup now?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              // Skip backup for today - mark as done to avoid repeated prompts
+              await prefs.setString('last_backup_date', todayStr);
+              Navigator.of(ctx).pop();
+            },
+            child: Text('Skip Today', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              // Use your existing backup method
+              BackupHelper.backupDbIfNeeded(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Backup Now'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> loadLineNames() async {
@@ -483,7 +548,7 @@ class _ModernDashboardState extends ConsumerState<HomeScreen>
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              const IndividualCollectionScreen()),
+                              const EnhancedBulkInsertScreen()),
                     );
                   },
                 ),

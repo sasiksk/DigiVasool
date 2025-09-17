@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vasool_diary/Data/Databasehelper.dart';
+import 'package:vasool_diary/Utilities/Reports/PendingReport/LastWeekPaymentScreen.dart';
 import 'package:vasool_diary/Utilities/Reports/PendingReport/PendingFollowupTab.dart';
 
 class PartyPendingDetailsScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _fetchPendingParties();
   }
 
@@ -166,7 +167,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Pending Parties',
@@ -188,6 +189,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen>
             indicatorColor: Colors.white, // Optional: underline color
             tabs: [
               Tab(text: 'Overall Pending'),
+              Tab(text: 'Last Week Payment'),
               Tab(text: 'Day Wise Pending'),
             ],
           ),
@@ -234,6 +236,7 @@ class _PartyPendingDetailsScreenState extends State<PartyPendingDetailsScreen>
               ),
             ),
             // Tab 2: Empty for now
+            const LastWeekPaymentScreen(),
             const PendingFollowupTab(),
           ],
         ),
@@ -388,18 +391,52 @@ class _PartyCardState extends State<PartyCard> {
         child: Column(
           children: [
             // Party header
+            // Update the Party header section (around lines 380-395)
+// Replace the existing party header Row with this:
+
+// Party header
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    '${party['PartyName'] ?? 'Unknown Party'}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '${party['PartyName'] ?? 'Unknown Party'}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Pending percentage container next to name
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: pendingPer > 75
+                              ? Colors.red
+                              : pendingPer > 50
+                                  ? Colors.orange
+                                  : pendingPer > 25
+                                      ? Colors.amber
+                                      : Colors.green,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${pendingPer.toStringAsFixed(0)}%-Pending',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                // Phone button on the right
                 if (phone.isNotEmpty)
                   IconButton(
                     icon:
@@ -437,6 +474,11 @@ class _PartyCardState extends State<PartyCard> {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+
+// INSERT THE PENDING PERCENTAGE CARD HERE - AFTER the above Row and SizedBox:
+// Pending Percentage Card
+
             const SizedBox(height: 8),
 
             // Expanded details

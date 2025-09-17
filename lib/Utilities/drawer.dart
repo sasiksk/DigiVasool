@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/CollectionEntryScreen.dart';
+import 'package:vasool_diary/Screens/Main/BulkInsert/EnhancedBulkInsertScreen.dart';
 import 'package:vasool_diary/Screens/Main/BulkInsert/IndividualCollectionScreen.dart';
+import 'package:vasool_diary/Screens/TableDetailsScreen.dart';
 
 import 'package:vasool_diary/Screens/UtilScreens/Backuppage.dart';
 import 'package:vasool_diary/ContactUs.dart';
@@ -10,6 +13,9 @@ import 'package:vasool_diary/Utilities/Reports/CustomerReportScreen.dart';
 import 'package:vasool_diary/Screens/Main/home_screen.dart';
 
 Widget buildDrawer(BuildContext context) {
+  int tapCount = 0;
+  DateTime? lastTapTime;
+
   return Drawer(
     child: Column(
       children: [
@@ -28,15 +34,18 @@ Widget buildDrawer(BuildContext context) {
               bottomRight: Radius.circular(30),
             ),
           ),
-          child: const Column(
+          child: Column(
             children: [
-              CircleAvatar(
-                radius: 35,
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+              GestureDetector(
+                onTap: () => _handleAvatarTap(context),
+                child: const CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 40, color: Colors.blueAccent),
+                ),
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'Welcome!',
                 style: TextStyle(
                   fontSize: 18,
@@ -44,7 +53,7 @@ Widget buildDrawer(BuildContext context) {
                   color: Colors.white,
                 ),
               ),
-              Text(
+              const Text(
                 'Vasool Diary',
                 style: TextStyle(
                   fontSize: 14,
@@ -66,7 +75,7 @@ Widget buildDrawer(BuildContext context) {
                 title: 'Home',
                 onTap: () => _navigateTo(context, const HomeScreen()),
               ),
-              /*_buildDrawerItem(
+              /*  _buildDrawerItem(
                 context,
                 icon: Icons.insert_drive_file,
                 title: 'Bulk Insert',
@@ -77,7 +86,7 @@ Widget buildDrawer(BuildContext context) {
                 icon: Icons.monetization_on,
                 title: 'Collection Entry',
                 onTap: () =>
-                    _navigateTo(context, const IndividualCollectionScreen()),
+                    _navigateTo(context, const EnhancedBulkInsertScreen()),
               ),
               _buildDrawerItem(
                 context,
@@ -206,4 +215,37 @@ void _navigateTo(BuildContext context, Widget screen) {
     context,
     MaterialPageRoute(builder: (context) => screen),
   );
+}
+
+// Add this method to handle triple tap
+int _avatarTapCount = 0;
+DateTime? _avatarLastTapTime;
+
+void _handleAvatarTap(BuildContext context) {
+  final now = DateTime.now();
+
+  // Reset counter if more than 2 seconds passed since last tap
+  if (_avatarLastTapTime == null ||
+      now.difference(_avatarLastTapTime!).inSeconds > 2) {
+    _avatarTapCount = 1;
+  } else {
+    _avatarTapCount++;
+  }
+
+  _avatarLastTapTime = now;
+
+  // If triple tap detected
+  if (_avatarTapCount == 3) {
+    _avatarTapCount = 0; // Reset counter
+    _navigateTo(context, const TableDetailsScreen());
+
+    // Optional: Show a brief message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Secret access activated! 🎉'),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
 }

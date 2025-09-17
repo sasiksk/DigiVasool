@@ -92,6 +92,7 @@ class CollectionScreen extends ConsumerWidget {
     required double collectedAmt,
     double? preloadedAmtCollected,
     int? preloadedCid,
+    bool skipSms = false, // Add this flag with default false
   }) async {
     // Fetch the current amtCollected and dueAmt from Lending table
     final lendingData = await dbLending.fetchLendingData(lenid);
@@ -151,8 +152,8 @@ class CollectionScreen extends ConsumerWidget {
         );
       }
 
-      // Send SMS if enabled
-      if (sms == 1 && pno != 'Unknown') {
+      // Send SMS if enabled AND skipSms flag is false
+      if (!skipSms && sms == 1 && pno != 'Unknown') {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         final financeName = prefs.getString('financeName') ?? '';
         await sendSms(
@@ -287,6 +288,8 @@ class CollectionScreen extends ConsumerWidget {
                                         preloadedAmtCollected:
                                             preloadedAmtCollected,
                                         preloadedCid: preloadedCid,
+                                        skipSms:
+                                            false, // Explicitly set to false for normal operation
                                       );
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
